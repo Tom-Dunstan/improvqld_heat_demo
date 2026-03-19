@@ -14,7 +14,7 @@
     <tbody></tbody>
   </table>
 
-  <div popover="hint" id="heatInfo" style="position: absolute; position-anchor: --schoolTable; top: anchor(top); left: anchor(right); bottom: auto">
+  <div popover="hint" id="heatInfo" style="position: absolute; position-anchor: --schoolTable; top: anchor(top); left: anchor(right); bottom: auto; margin: 5; margin-right: auto;">
     <table id="heatInfoTable" style="display: none;">
       <thead></thead>
       <tbody></tbody>
@@ -27,18 +27,6 @@
     </div>
   </div>
 
-  <!-- <table id="heatTable" style="display: none;">
-    <thead>
-      <tr>
-        <th>School</th>
-        <th>Division</th>
-        <th>Heat</th>
-        <th>Date</th>
-        <th>Venue</th>
-      </tr>
-    </thead>
-    <tbody>
-    </tbody> -->
   </table>
 </div>
 
@@ -83,7 +71,6 @@
 // 🔵 PASTE YOUR GOOGLE SHEET CSV LINK BELOW THIS LINE
 //////////////////////////////////////////////////////////////
 
-// const sheetURL = "./Schedule.csv";
 const heatsDataUrl = "./Heats.json"
 
 //////////////////////////////////////////////////////////////
@@ -384,49 +371,6 @@ fetch(heatsDataUrl)
   .catch(error => {
     console.error("Error loading heats data: ", error);
   })
-
-// let sheetData = [];
-
-// fetch(sheetURL)
-//   .then(res => res.text())
-//   .then(data => {
-
-//     const rows = data.split("\n").map(r => r.trim()).filter(r => r);
-
-//     sheetData = rows.slice(1).map(row => {
-//       const cols = row.split(",");
-//       return {
-//         school: cols[0],
-//         division: cols[1],
-//         heat: cols[2],
-//         date: cols[3],
-//         venue: cols[4]
-//       };
-//     });
-
-//     const searchInput = document.getElementById("schoolSearch");
-
-//     searchInput.addEventListener("keyup", function() {
-
-//       const value = this.value.trim().toLowerCase();
-
-//       // If search box is empty → hide table again
-//       if (value === "") {
-//         document.getElementById("heatTable").style.display = "none";
-//         return;
-//       }
-
-//       const filtered = sheetData.filter(r =>
-//         r.school && r.school.toLowerCase().includes(value)
-//       );
-
-//       displayRows(filtered);
-//     });
-
-//   })
-//   .catch(error => {
-//     console.error("Error loading timetable:", error);
-//   });
 
 </script>
   
