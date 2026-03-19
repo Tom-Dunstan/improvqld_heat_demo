@@ -1,0 +1,866 @@
+{
+  "Heats": [
+    {
+        "id": "JC1",
+        "division": "Junior",
+        "date": "12 May 2026",
+        "venueId": 7,
+        "mcId": 0,
+        "teams": [55, 46, 10, 28, 78, 18]
+    },
+    {
+        "id": "JW1",
+        "division": "Junior",
+        "date": "12 May 2026",
+        "venueId": 4,
+        "mcId": 0,
+        "teams": [63, 84, 30, 36, 85]
+    },
+    {
+        "id": "JS1",
+        "division": "Junior",
+        "date": "14 May 2026",
+        "venueId": 8,
+        "mcId": 0,
+        "teams": [33, 58, 13, 61, 34, 70]
+    },
+    {
+        "id": "SC1",
+        "division": "Senior",
+        "date": "19 May 2026",
+        "venueId": 10,
+        "mcId": 0,
+        "teams": [87, 75, 52, 26, 9, 3]
+    },
+    {
+        "id": "SN1",
+        "division": "Senior",
+        "date": "20 May 2026",
+        "venueId": 3,
+        "mcId": 0,
+        "teams": [12, 0, 44, 49, 42, 80]
+    },
+    {
+        "id": "SN2",
+        "division": "Senior",
+        "date": "25 May 2026",
+        "venueId": 11,
+        "mcId": 0,
+        "teams": [20, 64, 13, 79, 72, 50]
+    },
+    {
+        "id": "SN3",
+        "division": "Senior",
+        "date": "26 May 2026",
+        "venueId": 1,
+        "mcId": 0,
+        "teams": [27, 45, 73, 65, 60, 5]
+    },
+    {
+        "id": "SW1",
+        "division": "Senior",
+        "date": "2 June 2026",
+        "venueId": 4,
+        "mcId": 0,
+        "teams": [62, 15, 35, 83, 16, 17]
+    },
+    {
+        "id": "JN1",
+        "division": "Junior",
+        "date": "3 June 2026",
+        "venueId": 6,
+        "mcId": 0,
+        "teams": [21, 25, 82, 74, 66, 22]
+    },
+    {
+        "id": "SS1",
+        "division": "Senior",
+        "date": "4 June 2026",
+        "venueId": 5,
+        "mcId": 0,
+        "teams": [38, 40, 32, 48, 59, 23]
+    },
+    {
+        "id": "SC2",
+        "division": "Senior",
+        "date": "6 Jun 2026",
+        "venueId": 9,
+        "mcId": 0,
+        "teams": [4, 47, 53, 76, 31, 68]
+    },
+    {
+        "id": "JC2",
+        "division": "Junior",
+        "date": "8 June 2026",
+        "venueId": 7,
+        "mcId": 0,
+        "teams": [7, 11, 29, 56, 88, 19]
+    },
+    {
+        "id": "JC3",
+        "division": "Junior",
+        "date": "9 June 2026",
+        "venueId": 1,
+        "mcId": 0,
+        "teams": [71, 6, 86, 24, 41, 14]
+    },
+    {
+        "id": "SC3",
+        "division": "Senior",
+        "date": "10 June 2026",
+        "venueId": 9,
+        "mcId": 0,
+        "teams": [69, 54, 39, 77, 57, 8]
+    },
+    {
+        "id": "JN2",
+        "division": "Junior",
+        "date": "11 June 2026",
+        "venueId": 2,
+        "mcId": 0,
+        "teams": [1, 2, 81, 67, 51, 43]
+    }
+  ],
+  "Venues": [
+    {
+        "id": 0,
+        "name": "TBA",
+        "address": "TBA"
+    },
+    {
+        "id": 1,
+        "name": "AHS",
+        "address": "TBA"
+    },
+    {
+        "id": 2,
+        "name": "Albany Creek",
+        "address": "TBA"
+    },
+    {
+        "id": 3,
+        "name": "Aspley SHS",
+        "address": "TBA"
+    },
+    {
+        "id": 4,
+        "name": "IGGS",
+        "address": "TBA"
+    },
+    {
+        "id": 5,
+        "name": "Iona",
+        "address": "TBA"
+    },
+    {
+        "id": 6,
+        "name": "Nudgee",
+        "address": "TBA"
+    },
+    {
+        "id": 7,
+        "name": "Padua College",
+        "address": "TBA"
+    },
+    {
+        "id": 8,
+        "name": "Sheldon",
+        "address": "TBA"
+    },
+    {
+        "id": 9,
+        "name": "St Josephs Gregory Tce",
+        "address": "TBA"
+    },
+    {
+        "id": 10,
+        "name": "St Lauries",
+        "address": "TBA"
+    },
+    {
+        "id": 11,
+        "name": "St Pats",
+        "address": "TBA"
+    }
+  ],
+  "MCs": [
+    {
+        "id": "0",
+        "name": "TBA"
+    },
+    {
+        "id": "1",
+        "name": "Wade Robinson"
+    }
+  ],
+  "Schools": [
+    {
+        "id": 0,
+        "name": "Albany Creek State High School" 
+    },
+    {
+        "id": 1,
+        "name": "All Hallows School" 
+    },
+    {
+        "id": 2,
+        "name": "Ambrose Treacy College" 
+    },
+    {
+        "id": 3,
+        "name": "Anglican Church Grammar School" 
+    },
+    {
+        "id": 4,
+        "name": "Aspley State High School" 
+    },
+    {
+        "id": 5,
+        "name": "Assumption College" 
+    },
+    {
+        "id": 6,
+        "name": "Caboolture State High School" 
+    },
+    {
+        "id": 7,
+        "name": "Grace Lutheran College Caboolture" 
+    },
+    {
+        "id": 8,
+        "name": "Grace Lutheran College Rothwell" 
+    },
+    {
+        "id": 9,
+        "name": "Hillbrook Anglican School" 
+    },
+    {
+        "id": 10,
+        "name": "Hills International College" 
+    },
+    {
+        "id": 11,
+        "name": "Iona College" 
+    },
+    {
+        "id": 12,
+        "name": "Ipswich Girls Grammar School" 
+    },
+    {
+        "id": 13,
+        "name": "John Paul College" 
+    },
+    {
+        "id": 14,
+        "name": "Kingston College" 
+    },
+    {
+        "id": 15,
+        "name": "MacGregor State High School" 
+    },
+    {
+        "id": 16,
+        "name": "Mango Hill State Secondary College" 
+    },
+    {
+        "id": 17,
+        "name": "Mt Carmichael College" 
+    },
+    {
+        "id": 18,
+        "name": "Mt Maria College" 
+    },
+    {
+        "id": 19,
+        "name": "Music Industry College" 
+    },
+    {
+        "id": 20,
+        "name": "Narangba Valley State High School" 
+    },
+    {
+        "id": 21,
+        "name": "Padua College" 
+    },
+    {
+        "id": 22,
+        "name": "Redlands College" 
+    },
+    {
+        "id": 23,
+        "name": "Sheldon College" 
+    },
+    {
+        "id": 24,
+        "name": "Springfield Anglican College" 
+    },
+    {
+        "id": 25,
+        "name": "St John Fisher College" 
+    },
+    {
+        "id": 26,
+        "name": "St Josephs Gregory Tce" 
+    },
+    {
+        "id": 27,
+        "name": "St Josephs Nudgee College" 
+    },
+    {
+        "id": 28,
+        "name": "St Laurence's College" 
+    },
+    {
+        "id": 29,
+        "name": "St Patricks" 
+    },
+    {
+        "id": 30,
+        "name": "St Peter Claver College" 
+    },
+    {
+        "id": 31,
+        "name": "St Peters Lutheran College" 
+    },
+    {
+        "id": 32,
+        "name": "Villanova College" 
+    }
+  ],
+  "Teams": [
+    {
+        "id": 0,
+        "schoolId": 0,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 1,
+        "schoolId": 0,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 2,
+        "schoolId": 0,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 3,
+        "schoolId": 1,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 4,
+        "schoolId": 1,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 5,
+        "schoolId": 1,
+        "name": "Team 3",
+        "division": "Senior"
+    },
+    {
+        "id": 6,
+        "schoolId": 1,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 7,
+        "schoolId": 1,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 8,
+        "schoolId": 2,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 9,
+        "schoolId": 3,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 10,
+        "schoolId": 3,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 11,
+        "schoolId": 3,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 12,
+        "schoolId": 4,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 13,
+        "schoolId": 4,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 14,
+        "schoolId": 4,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 15,
+        "schoolId": 5,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 16,
+        "schoolId": 5,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 17,
+        "schoolId": 5,
+        "name": "Team 3",
+        "division": "Senior"
+    },
+    {
+        "id": 18,
+        "schoolId": 6,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 19,
+        "schoolId": 6,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 20,
+        "schoolId": 7,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 21,
+        "schoolId": 7,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 22,
+        "schoolId": 7,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 23,
+        "schoolId": 8,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 24,
+        "schoolId": 8,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 25,
+        "schoolId": 8,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 26,
+        "schoolId": 9,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 27,
+        "schoolId": 9,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 28,
+        "schoolId": 9,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 29,
+        "schoolId": 9,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 30,
+        "schoolId": 10,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 31,
+        "schoolId": 11,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 32,
+        "schoolId": 11,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 33,
+        "schoolId": 11,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 34,
+        "schoolId": 11,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 35,
+        "schoolId": 12,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 36,
+        "schoolId": 12,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 37,
+        "schoolId": 13,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 38,
+        "schoolId": 14,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 39,
+        "schoolId": 14,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 40,
+        "schoolId": 15,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 41,
+        "schoolId": 15,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 42,
+        "schoolId": 16,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 43,
+        "schoolId": 16,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 44,
+        "schoolId": 17,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 45,
+        "schoolId": 18,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 46,
+        "schoolId": 18,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 47,
+        "schoolId": 19,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 48,
+        "schoolId": 19,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 49,
+        "schoolId": 20,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 50,
+        "schoolId": 20,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 51,
+        "schoolId": 20,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 52,
+        "schoolId": 21,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 53,
+        "schoolId": 21,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 54,
+        "schoolId": 21,
+        "name": "Team 3",
+        "division": "Senior"
+    },
+    {
+        "id": 55,
+        "schoolId": 21,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 56,
+        "schoolId": 21,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 57,
+        "schoolId": 22,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 58,
+        "schoolId": 22,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 59,
+        "schoolId": 23,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 60,
+        "schoolId": 23,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 61,
+        "schoolId": 23,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 62,
+        "schoolId": 24,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 63,
+        "schoolId": 24,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 64,
+        "schoolId": 25,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 65,
+        "schoolId": 25,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 66,
+        "schoolId": 25,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 67,
+        "schoolId": 25,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 68,
+        "schoolId": 26,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 69,
+        "schoolId": 26,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 70,
+        "schoolId": 26,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 71,
+        "schoolId": 26,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 72,
+        "schoolId": 27,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 73,
+        "schoolId": 27,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 74,
+        "schoolId": 27,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 75,
+        "schoolId": 28,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 76,
+        "schoolId": 28,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 77,
+        "schoolId": 28,
+        "name": "Team 3",
+        "division": "Senior"
+    },
+    {
+        "id": 78,
+        "schoolId": 28,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 79,
+        "schoolId": 29,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 80,
+        "schoolId": 29,
+        "name": "Team 2",
+        "division": "Senior"
+    },
+    {
+        "id": 81,
+        "schoolId": 29,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 82,
+        "schoolId": 29,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 83,
+        "schoolId": 30,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 84,
+        "schoolId": 30,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 85,
+        "schoolId": 31,
+        "name": "Team 1",
+        "division": "Junior"
+    },
+    {
+        "id": 86,
+        "schoolId": 31,
+        "name": "Team 2",
+        "division": "Junior"
+    },
+    {
+        "id": 87,
+        "schoolId": 32,
+        "name": "Team 1",
+        "division": "Senior"
+    },
+    {
+        "id": 88,
+        "schoolId": 32,
+        "name": "Team 1",
+        "division": "Junior"
+    }
+  ]
+}

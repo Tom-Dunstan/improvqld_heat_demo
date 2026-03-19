@@ -1,0 +1,437 @@
+<html>
+
+<body>
+    <div class="sqs-block-content"><div class="sqs-code-container" data-localized="{&quot;enableSafeModeTitle&quot;:&quot;Embedded Scripts&quot;,&quot;exitSafeModeButton&quot;:&quot;Exit safe preview&quot;,&quot;enableSafeModeText&quot;:&quot;This block contains embedded scripts. Embedded scripts are disabled while you're logged in and editing your site.&quot;,&quot;enableSafeModeButton&quot;:&quot;Preview in safe mode&quot;,&quot;exitSafeModeTitle&quot;:&quot;Safe Preview&quot;,&quot;exitSafeModeText&quot;:&quot;Please view the page after logging out for accurate rendering.&quot;,&quot;globalSafeMode&quot;:&quot;Embedded Code: This block contains embedded code that has been disabled.&quot;,&quot;scriptDisabled&quot;:&quot;Script Disabled&quot;}">
+  
+    
+<div class="timetable-container">
+  <h2>Find Your Theatresports Heat</h2>
+
+  <input type="text" id="schoolSearch" placeholder="Type your school name...">
+
+  <table id="schoolTable" style="display: none; anchor-name: --schoolTable;">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+
+  <div popover="hint" id="heatInfo" style="position: absolute; position-anchor: --schoolTable; top: anchor(top); left: anchor(right); bottom: auto">
+    <table id="heatInfoTable" style="display: none;">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+    <div id="heatInfoNotFound" style="display: block;">
+      <h1>No heats found for team</h1>
+      <p>
+        There are currently no heats scheaduled for this team
+      </p>
+    </div>
+  </div>
+
+  <!-- <table id="heatTable" style="display: none;">
+    <thead>
+      <tr>
+        <th>School</th>
+        <th>Division</th>
+        <th>Heat</th>
+        <th>Date</th>
+        <th>Venue</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody> -->
+  </table>
+</div>
+
+<style>
+.timetable-container {
+  max-width: 100%;
+}
+
+#schoolSearch {
+  padding: 10px;
+  width: 100%;
+  max-width: 400px;
+  font-size: 16px;
+  margin: 15px 0 25px 0;
+}
+
+#heatTable {
+  border-collapse: collapse;
+  width: 100%;
+  display: none; /* HIDDEN UNTIL SEARCH */
+}
+
+#heatTable th,
+#heatTable td {
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+#heatTable tr:hover {
+  background-color: #f5f5f5;
+}
+
+#heatTable th {
+  background-color: #fafafa;
+}
+</style>
+
+<script>
+
+//////////////////////////////////////////////////////////////
+// 🔵 PASTE YOUR GOOGLE SHEET CSV LINK BELOW THIS LINE
+//////////////////////////////////////////////////////////////
+
+// const sheetURL = "./Schedule.csv";
+const heatsDataUrl = "./Heats.json"
+
+//////////////////////////////////////////////////////////////
+
+const findById = (o, id) => o.id == id;
+const findBySchoolId = (o, id) => o.schoolId == id;
+const findByVenueId = (o, id) => (o?.venueId ?? 0) == id;
+const findByMcId = (o, id) => (o?.mcId ?? 0) == id;
+
+const sortByName = (a,b) => a.name.localeCompare(b.name);
+const sortByDivision = (a,b) => -a.division.localeCompare(b.division);
+const sortByDate = (a,b) => new Date(a) - new Date(b);
+
+function displayRows(data) {
+  const table = document.querySelector("#heatTable tbody");
+  const schoolTableElement = document.getElementById("heatTable");
+
+  table.innerHTML = "";
+
+  if (data.length === 0) {
+    table.innerHTML = "<tr><td colspan='5'>No results found.</td></tr>";
+  } else {
+    data.forEach(row => {
+      table.innerHTML += `
+        <tr>
+          <td>${row.school || ""}</td>
+          <td>${row.division || ""}</td>
+          <td><button popovertarget="heat-info">${row.heat || ""}</button></td>
+          <td>${row.date || ""}</td>
+          <td>${row.venue || ""}</td>
+        </tr>
+      `;
+    });
+  }
+
+  // SHOW TABLE ONLY AFTER SEARCH
+  schoolTableElement.style.display = "table";
+}
+
+const schoolSearchElementName = "schoolSearch";
+const schoolTableElementName = "schoolTable";
+
+const heatPopoverElementName = "heatInfo";
+const heatRowClassName = "heatrow";
+const heatInfoTableElementName = "heatInfoTable";
+const heatInfoNotFoundElementName = "heatInfoNotFound";
+
+const heatPopoverElement = document.getElementById(heatPopoverElementName);
+
+const schoolTableElement = document.getElementById(schoolSearchElementName);
+
+const heatInfoTableHeader = document.querySelector(`#${heatInfoTableElementName} thead`);
+const heatInfoTableBody = document.querySelector(`#${heatInfoTableElementName} tbody`);
+const heatInfoTableElement = document.getElementById(heatInfoTableElementName);
+const heatInfoNotFoundElement = document.getElementById(heatInfoNotFoundElementName);
+
+schoolTableElement.addEventListener("mouseout", e => {
+  heatPopoverElement.hidePopover();
+});
+
+const dateLocality = 'en-AU';
+const dateFormatOptions= {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: "Australia/Brisbane"
+};
+const dateFormater = new Intl.DateTimeFormat(dateLocality,dateFormatOptions);
+
+function clearHeatInfoTable() {
+  heatInfoTableHeader.innerHTML = "";
+  heatInfoTableBody.innerHTML = "";
+};
+
+function noHeatFound() {
+  clearHeatInfoTable();
+
+  heatInfoTableElement.style.display = "none";
+  heatInfoNotFoundElement.style.display = "block";
+
+  //heatInfoTableBody.
+}
+
+function showHeatInfo() {
+  heatInfoNotFoundElement.style.display = "none";
+  heatInfoTableElement.style.display = "table";
+}
+
+function displayHeatsFromElement(event){
+  if(!event){
+    noHeatFound();
+    return;
+  }
+
+  const element = event.target.closest(`.${heatRowClassName}`);
+
+  if(!element?.dataset?.team) {
+    noHeatFound();
+    return;
+  }
+
+  const teamtData = atob(element.dataset.team);
+  const team = JSON.parse(teamtData);
+
+  if(!team?.heats?.length){
+    noHeatFound();
+    return;
+  }
+  
+  
+
+  const heat = team.heats[0];
+  const heatDate = new Date(heat.date);
+
+  heatInfoTableHeader.innerHTML = `<tr><th colspan="2">Heat (${heat.id})</th></tr>`;
+  var heatInfoHtml = `
+  <tr><td>Venue</td><td>${heat.venue.name}</td></tr>
+  <tr><td>Date</td><td>${dateFormater.format(heatDate)}</td></tr>
+  <tr><td>Division</td><td>${heat.division}</td></tr>
+  <tr><td>MC</td><td>${heat.mc}</td></tr>
+  <tr><td>Venue Address</td><td>${heat.venue.address ?? "TBA"}</td></tr>
+  `;
+  heatInfoHtml += `
+  <tr>
+    <td colspan=2>
+      <table>
+        <thead><tr><th colspan=2>Teams</th></tr></thead>
+        <tbody>`;
+  heat.teams.forEach(heatTeam =>{
+    const rowStyle = heatTeam.teamId == team.id ? ' style="font-weight: bold;"' : "";
+    heatInfoHtml +=`
+         <tr${rowStyle}><td>${heatTeam.school}</td><td>${heatTeam.team}</td></tr>
+    `;
+  });
+  heatInfoHtml += `
+        </tbody>
+      </table>
+    </td>
+  </tr>`;  
+
+  heatInfoTableBody.innerHTML = heatInfoHtml;
+  showHeatInfo();
+}
+
+function displaySchools(data) {
+  
+  const schoolTableHeader = document.querySelector(`#${schoolTableElementName} thead`);
+  const schoolTableBody = document.querySelector(`#${schoolTableElementName} tbody`);
+  const schoolTableElement = document.getElementById(schoolTableElementName);
+
+  schoolTableHeader.innerHTML = "";
+  schoolTableBody.innerHTML = "";
+
+  if (data.length === 0) {
+    schoolTableBody.innerHTML = "<tr><td colspan='5'>No results found.</td></tr>";
+  } else {
+    schoolTableHeader.innerHTML = `
+      <tr>
+        <th>School</th>
+        <th>Teams</th>
+        <th>Division</th>
+      </tr>
+    `;
+
+    var schoolRowHtml = "";
+      
+    data.forEach(school => {
+      if(!school) return;
+
+      if(!(school.teams?.length ?? 0)) {
+        schoolRowHtml += `
+        <tr>
+          <td>${school.schoolName}</td>
+          <td colspan=2>- No Teams -</td>
+        </tr>
+        `;
+      }else{
+        school.teams.forEach((team, i, a) => {
+          const id = `${school.schoolId}-${team.id}`;
+          const anchorStyle = ``;
+          schoolRowHtml += `
+            <tr style="anchor-name: --anchor-${id} " class="${heatRowClassName}" data-id="${id}" data-team='${btoa(JSON.stringify(team))}'>
+              <td>${i == 0 ? school.schoolName : ""}</td>
+              <td>${team.name}</td>
+              <td>${team.division}</td>
+            </tr>
+            `;
+        });
+      }
+
+      schoolTableBody.innerHTML = schoolRowHtml;
+      
+      const heatRows = document.querySelectorAll(`.${heatRowClassName}`);
+
+      heatRows.forEach(row => {
+        row.addEventListener("mouseover", e => {
+          displayHeatsFromElement(e);
+          heatPopoverElement.showPopover({source: row});
+        });
+
+        // row.addEventListener("mouseout", e => {
+        //   heatPopoverElement.hidePopover();
+        // });
+
+        row.addEventListener("focus", e => {
+          displayHeatsFromElement(e);
+          heatPopoverElement.showPopover({source: row});
+        });
+
+        row.addEventListener("blur", e => {
+          heatPopoverElement.hidePopover();
+        });
+      });
+    });
+  }
+
+  // SHOW TABLE ONLY AFTER SEARCH
+  schoolTableElement.style.display = "table";
+}
+
+fetch(heatsDataUrl)
+  .then(result => result.json())
+  .then(heatsData => {
+    const heatsExData = heatsData.Heats.sort(sortByDate)
+                                       .map(h => {
+                                         const venue = heatsData.Venues.find(v => findById(v, h.venueId));
+                                         const mc = heatsData.Venues.find(v => findById(v, h.mcId));
+                                         const heatDate = new Date(h.date);
+                                         const heatTeams = h.teams.map(id => {
+                                           const heatTeam = heatsData.Teams.find(t => findById(t, id));
+                                           const teamSchool = heatsData.Schools.find(s => findById(s, heatTeam.schoolId));
+
+                                           return {
+                                             schoolId: heatTeam.schoolId,
+                                             school: teamSchool.name,
+                                             teamId: heatTeam.id,
+                                             team: heatTeam.name,
+                                             division: heatTeam.division
+                                           };
+                                         });
+
+                                         return {
+                                           id: h.id,
+                                           division: h.division,
+                                           venue: {name: venue.name, address: venue.address},
+                                           mc: mc.name,
+                                           date: heatDate,
+                                           teams: heatTeams
+                                         };
+                                       });
+    const schools = heatsData.Schools.map((school) => {
+      const schoolTeams = heatsData.Teams
+                                   .filter(t => findBySchoolId(t, school.id))
+                                   .sort(sortByName)
+                                   .sort(sortByDivision)
+                                   .map(t => {
+                                    const teamId = t.id;
+                                    const heats = heatsExData.filter(h => h.teams.some(ht => ht.teamId == t.id));
+
+                                    return {
+                                      id: t.id,
+                                      name: t.name,
+                                      division: t.division,
+                                      heats: heats
+                                    }
+                                   });
+
+      return {
+        schoolId: school.id,
+        schoolName: school.name,
+        teams: schoolTeams
+      }
+    })
+
+    const searchInput = document.getElementById(schoolSearchElementName);
+
+    searchInput.addEventListener("keyup", function() {
+
+      const value = this.value.trim().toLowerCase();
+
+      // If search box is empty → hide table again
+      if (value === "") {
+        document.getElementById(schoolTableElementName)
+                .style
+                .display = "none";
+        return;
+      }
+
+      const filtered = schools.filter(r =>
+        r && r.schoolName.toLowerCase().includes(value)
+      );
+
+      displaySchools(filtered);
+    });
+
+  })
+  .catch(error => {
+    console.error("Error loading heats data: ", error);
+  })
+
+// let sheetData = [];
+
+// fetch(sheetURL)
+//   .then(res => res.text())
+//   .then(data => {
+
+//     const rows = data.split("\n").map(r => r.trim()).filter(r => r);
+
+//     sheetData = rows.slice(1).map(row => {
+//       const cols = row.split(",");
+//       return {
+//         school: cols[0],
+//         division: cols[1],
+//         heat: cols[2],
+//         date: cols[3],
+//         venue: cols[4]
+//       };
+//     });
+
+//     const searchInput = document.getElementById("schoolSearch");
+
+//     searchInput.addEventListener("keyup", function() {
+
+//       const value = this.value.trim().toLowerCase();
+
+//       // If search box is empty → hide table again
+//       if (value === "") {
+//         document.getElementById("heatTable").style.display = "none";
+//         return;
+//       }
+
+//       const filtered = sheetData.filter(r =>
+//         r.school && r.school.toLowerCase().includes(value)
+//       );
+
+//       displayRows(filtered);
+//     });
+
+//   })
+//   .catch(error => {
+//     console.error("Error loading timetable:", error);
+//   });
+
+</script>
+  
+</div>
+</div>
+</body>
+
+</html>
