@@ -1,5 +1,4 @@
 <html>
-
 <body>
     <div class="sqs-block-content"><div class="sqs-code-container" data-localized="{&quot;enableSafeModeTitle&quot;:&quot;Embedded Scripts&quot;,&quot;exitSafeModeButton&quot;:&quot;Exit safe preview&quot;,&quot;enableSafeModeText&quot;:&quot;This block contains embedded scripts. Embedded scripts are disabled while you're logged in and editing your site.&quot;,&quot;enableSafeModeButton&quot;:&quot;Preview in safe mode&quot;,&quot;exitSafeModeTitle&quot;:&quot;Safe Preview&quot;,&quot;exitSafeModeText&quot;:&quot;Please view the page after logging out for accurate rendering.&quot;,&quot;globalSafeMode&quot;:&quot;Embedded Code: This block contains embedded code that has been disabled.&quot;,&quot;scriptDisabled&quot;:&quot;Script Disabled&quot;}">
   
@@ -65,36 +64,99 @@
 }
 </style>
 
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
 
-//////////////////////////////////////////////////////////////
-// 🔵 PASTE YOUR GOOGLE SHEET CSV LINK BELOW THIS LINE
-//////////////////////////////////////////////////////////////
-
+/*
+ * Data files (JSON)
+ */
 const heatsDataUrl = "./Heats.json"
 
-//////////////////////////////////////////////////////////////
+/**
+ * Search Prdicates
+ */
+class FindBy {
+  static Id = (o, id) => o.id == id;
+  static SchoolId = (o, id) => o.schoolId == id;
+  static SchoolName = (school, value) => school && school.schoolName.toLowerCase().includes(value);
+}
 
-const findById = (o, id) => o.id == id;
-const findBySchoolId = (o, id) => o.schoolId == id;
-const findByVenueId = (o, id) => (o?.venueId ?? 0) == id;
-const findByMcId = (o, id) => (o?.mcId ?? 0) == id;
+/**
+ * Sort Prdicates
+ */
+class SortBy {
+  static Name = (a,b) => a.name.localeCompare(b.name);
+  static Division = (a,b) => -a.division.localeCompare(b.division);
+  static Date = (a,b) => new Date(a) - new Date(b);
+}
 
-const sortByName = (a,b) => a.name.localeCompare(b.name);
-const sortByDivision = (a,b) => -a.division.localeCompare(b.division);
-const sortByDate = (a,b) => new Date(a) - new Date(b);
+/**
+ * Global elements
+ */
+class ElementNames {
+  static School = {
+    Search: "schoolSearch",
+    Table: "schoolTable" 
+  };
+  static Heats = {
+    Popover: "heatInfo",
+    Row: "heatrow",
+    Table: "heatInfoTable",
+    NotFound: "heatInfoNotFound"
+  }
+};
+
+class Elements {
+  static School = {
+    Search:document.getElementById(ElementNames.School.Search), 
+    Table: document.getElementById(ElementNames.School.Table),
+    TableHeader: document.querySelector(`#${ElementNames.School.Table} thead`),
+    TableBody: document.querySelector(`#${ElementNames.School.Table} tbody`)
+  };
+  static Heats = {
+    Popover: document.getElementById(ElementNames.Heats.Popover),
+    Table: document.getElementById(ElementNames.Heats.Table),
+    TableHeader: document.querySelector(`#${ElementNames.Heats.Table} thead`),
+    TableBody: document.querySelector(`#${ElementNames.Heats.Table} tbody`),
+    NotFound: document.getElementById(ElementNames.Heats.NotFound)
+  };
+}
+
+Object.defineProperty(Elements.Heats, "TableRows", {
+  value: () => document.querySelectorAll(`.${ElementNames.Heats.Row}`),
+  writeable: false,
+  enumerable: true,
+  configurable: false
+}); 
+
+/* Formating */
+class DateFormat {
+  static Locality =  'en-AU';
+  static Options = {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: "Australia/Brisbane"
+  }
+};
+const dateFormater = new Intl.DateTimeFormat(DateFormat.Locality,DateFormat.Options);
+
+function setGlobalEvents(){
+    Elements.School.Table.addEventListener("mouseout", e => {
+    Elements.Heats.Popover.hidePopover();
+  });
+}
 
 function displayRows(data) {
-  const table = document.querySelector("#heatTable tbody");
-  const schoolTableElement = document.getElementById("heatTable");
-
-  table.innerHTML = "";
+  Elements.Heats.TableBody.innerHTML = "";
 
   if (data.length === 0) {
-    table.innerHTML = "<tr><td colspan='5'>No results found.</td></tr>";
+    Elements.Heats.TableBody.innerHTML = "<tr><td colspan='5'>No results found.</td></tr>";
   } else {
     data.forEach(row => {
-      table.innerHTML += `
+      Elements.Heats.TableBody.innerHTML += `
         <tr>
           <td>${row.school || ""}</td>
           <td>${row.division || ""}</td>
@@ -107,57 +169,24 @@ function displayRows(data) {
   }
 
   // SHOW TABLE ONLY AFTER SEARCH
-  schoolTableElement.style.display = "table";
+  Elements.School.Table.style.display = "table";
 }
 
-const schoolSearchElementName = "schoolSearch";
-const schoolTableElementName = "schoolTable";
-
-const heatPopoverElementName = "heatInfo";
-const heatRowClassName = "heatrow";
-const heatInfoTableElementName = "heatInfoTable";
-const heatInfoNotFoundElementName = "heatInfoNotFound";
-
-const heatPopoverElement = document.getElementById(heatPopoverElementName);
-
-const schoolTableElement = document.getElementById(schoolSearchElementName);
-
-const heatInfoTableHeader = document.querySelector(`#${heatInfoTableElementName} thead`);
-const heatInfoTableBody = document.querySelector(`#${heatInfoTableElementName} tbody`);
-const heatInfoTableElement = document.getElementById(heatInfoTableElementName);
-const heatInfoNotFoundElement = document.getElementById(heatInfoNotFoundElementName);
-
-schoolTableElement.addEventListener("mouseout", e => {
-  heatPopoverElement.hidePopover();
-});
-
-const dateLocality = 'en-AU';
-const dateFormatOptions= {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: "Australia/Brisbane"
-};
-const dateFormater = new Intl.DateTimeFormat(dateLocality,dateFormatOptions);
-
 function clearHeatInfoTable() {
-  heatInfoTableHeader.innerHTML = "";
-  heatInfoTableBody.innerHTML = "";
+  Elements.Heats.TableHeader.innerHTML = "";
+  Elements.Heats.TableBody.innerHTML = "";
 };
 
 function noHeatFound() {
   clearHeatInfoTable();
 
-  heatInfoTableElement.style.display = "none";
-  heatInfoNotFoundElement.style.display = "block";
-
-  //heatInfoTableBody.
+  Elements.Heats.Table.style.display = "none";
+  Elements.Heats.NotFound.style.display = "block";
 }
 
 function showHeatInfo() {
-  heatInfoNotFoundElement.style.display = "none";
-  heatInfoTableElement.style.display = "table";
+  Elements.Heats.NotFound.style.display = "none";
+  Elements.Heats.Table.style.display = "table";
 }
 
 function displayHeatsFromElement(event){
@@ -166,7 +195,7 @@ function displayHeatsFromElement(event){
     return;
   }
 
-  const element = event.target.closest(`.${heatRowClassName}`);
+  const element = event.target.closest(`.${ElementNames.Heats.Row}`);
 
   if(!element?.dataset?.team) {
     noHeatFound();
@@ -186,7 +215,7 @@ function displayHeatsFromElement(event){
   const heat = team.heats[0];
   const heatDate = new Date(heat.date);
 
-  heatInfoTableHeader.innerHTML = `<tr><th colspan="2">Heat (${heat.id})</th></tr>`;
+  Elements.Heats.TableHeader.innerHTML = `<tr><th colspan="2">Heat (${heat.id})</th></tr>`;
   var heatInfoHtml = `
   <tr><td>Venue</td><td>${heat.venue.name}</td></tr>
   <tr><td>Date</td><td>${dateFormater.format(heatDate)}</td></tr>
@@ -212,23 +241,19 @@ function displayHeatsFromElement(event){
     </td>
   </tr>`;  
 
-  heatInfoTableBody.innerHTML = heatInfoHtml;
+  Elements.Heats.TableBody.innerHTML = heatInfoHtml;
   showHeatInfo();
 }
 
 function displaySchools(data) {
   
-  const schoolTableHeader = document.querySelector(`#${schoolTableElementName} thead`);
-  const schoolTableBody = document.querySelector(`#${schoolTableElementName} tbody`);
-  const schoolTableElement = document.getElementById(schoolTableElementName);
-
-  schoolTableHeader.innerHTML = "";
-  schoolTableBody.innerHTML = "";
+  Elements.School.TableHeader.innerHTML = "";
+  Elements.School.TableBody.innerHTML = "";
 
   if (data.length === 0) {
-    schoolTableBody.innerHTML = "<tr><td colspan='5'>No results found.</td></tr>";
+    Elements.School.TableBody.innerHTML = "<tr><td colspan='5'>No results found.</td></tr>";
   } else {
-    schoolTableHeader.innerHTML = `
+    Elements.School.TableHeader.innerHTML = `
       <tr>
         <th>School</th>
         <th>Teams</th>
@@ -253,7 +278,7 @@ function displaySchools(data) {
           const id = `${school.schoolId}-${team.id}`;
           const anchorStyle = ``;
           schoolRowHtml += `
-            <tr style="anchor-name: --anchor-${id} " class="${heatRowClassName}" data-id="${id}" data-team='${btoa(JSON.stringify(team))}'>
+            <tr style="anchor-name: --anchor-${id} " class="${ElementNames.Heats.Row}" data-id="${id}" data-team='${btoa(JSON.stringify(team))}'>
               <td>${i == 0 ? school.schoolName : ""}</td>
               <td>${team.name}</td>
               <td>${team.division}</td>
@@ -262,74 +287,71 @@ function displaySchools(data) {
         });
       }
 
-      schoolTableBody.innerHTML = schoolRowHtml;
-      
-      const heatRows = document.querySelectorAll(`.${heatRowClassName}`);
+      Elements.School.TableBody.innerHTML = schoolRowHtml;
+            
+      // const heatRows = docuent.querySelectorAll(`.${ElementNames.Heats.Row}`);
+      const heatRows = Elements.Heats.TableRows();
 
       heatRows.forEach(row => {
         row.addEventListener("mouseover", e => {
           displayHeatsFromElement(e);
-          heatPopoverElement.showPopover({source: row});
+          Elements.Heats.Popover.showPopover({source: row});
         });
-
-        // row.addEventListener("mouseout", e => {
-        //   heatPopoverElement.hidePopover();
-        // });
 
         row.addEventListener("focus", e => {
           displayHeatsFromElement(e);
-          heatPopoverElement.showPopover({source: row});
+          Elements.Heats.Popover.showPopover({source: row});
         });
 
         row.addEventListener("blur", e => {
-          heatPopoverElement.hidePopover();
+          Elements.Heats.PopovererElement.hidePopover();
         });
       });
     });
   }
 
   // SHOW TABLE ONLY AFTER SEARCH
-  schoolTableElement.style.display = "table";
+  Elements.School.Table.style.display = "table";
 }
 
-fetch(heatsDataUrl)
-  .then(result => result.json())
-  .then(heatsData => {
-    const heatsExData = heatsData.Heats.sort(sortByDate)
-                                       .map(h => {
-                                         const venue = heatsData.Venues.find(v => findById(v, h.venueId));
-                                         const mc = heatsData.Venues.find(v => findById(v, h.mcId));
-                                         const heatDate = new Date(h.date);
-                                         const heatTeams = h.teams.map(id => {
-                                           const heatTeam = heatsData.Teams.find(t => findById(t, id));
-                                           const teamSchool = heatsData.Schools.find(s => findById(s, heatTeam.schoolId));
+const mapResponseTextToJSON = response => response.json();
 
-                                           return {
-                                             schoolId: heatTeam.schoolId,
-                                             school: teamSchool.name,
-                                             teamId: heatTeam.id,
-                                             team: heatTeam.name,
-                                             division: heatTeam.division
-                                           };
-                                         });
+const mapToHeatsModel = heatsJson => {
+  const heatsData = heatsJson.Heats.sort(SortBy.Date)
+                                   .map(h => {
+                                     const venue = heatsJson.Venues.find(v => FindBy.Id(v, h.venueId));
+                                     const mc = heatsJson.Venues.find(v => FindBy.Id(v, h.mcId));
+                                     const heatDate = new Date(h.date);
+                                     const heatTeams = h.teams.map(id => {
+                                     const heatTeam = heatsJson.Teams.find(t => FindBy.Id(t, id));
+                                     const teamSchool = heatsJson.Schools.find(s => FindBy.Id(s, heatTeam.schoolId));
 
-                                         return {
-                                           id: h.id,
-                                           division: h.division,
-                                           venue: {name: venue.name, address: venue.address},
-                                           mc: mc.name,
-                                           date: heatDate,
-                                           teams: heatTeams
-                                         };
-                                       });
-    const schools = heatsData.Schools.map((school) => {
-      const schoolTeams = heatsData.Teams
-                                   .filter(t => findBySchoolId(t, school.id))
-                                   .sort(sortByName)
-                                   .sort(sortByDivision)
+                                     return {
+                                         schoolId: heatTeam.schoolId,
+                                         school: teamSchool.name,
+                                         teamId: heatTeam.id,
+                                         team: heatTeam.name,
+                                         division: heatTeam.division
+                                       };
+                                     });
+
+                                     return {
+                                       id: h.id,
+                                       division: h.division,
+                                       venue: {name: venue.name, address: venue.address},
+                                       mc: mc.name,
+                                       date: heatDate,
+                                       teams: heatTeams
+                                     };
+                                   });
+    const schools = heatsJson.Schools.map((school) => {
+      const schoolTeams = heatsJson.Teams
+                                   .filter(t => FindBy.SchoolId(t, school.id))
+                                   .sort(SortBy.Name)
+                                   .sort(SortBy.Division)
                                    .map(t => {
                                     const teamId = t.id;
-                                    const heats = heatsExData.filter(h => h.teams.some(ht => ht.teamId == t.id));
+                                    const heats = heatsData.filter(h => h.teams.some(ht => ht.teamId == t.id));
 
                                     return {
                                       id: t.id,
@@ -344,33 +366,51 @@ fetch(heatsDataUrl)
         schoolName: school.name,
         teams: schoolTeams
       }
-    })
-
-    const searchInput = document.getElementById(schoolSearchElementName);
-
-    searchInput.addEventListener("keyup", function() {
-
-      const value = this.value.trim().toLowerCase();
-
-      // If search box is empty → hide table again
-      if (value === "") {
-        document.getElementById(schoolTableElementName)
-                .style
-                .display = "none";
-        return;
-      }
-
-      const filtered = schools.filter(r =>
-        r && r.schoolName.toLowerCase().includes(value)
-      );
-
-      displaySchools(filtered);
     });
 
-  })
-  .catch(error => {
-    console.error("Error loading heats data: ", error);
-  })
+    return schools;
+};
+
+const hookUpEvents = schools => {
+  Elements.School.Search.addEventListener("keyup", e => onSearchKeyUp(e?.target, schools));
+};
+
+/*
+ * Event Hadnlers
+ */
+function onSearchKeyUp(element, schools) {
+
+  const value = element.value.trim().toLowerCase();
+
+  // If search box is empty → hide table again
+  if (value === "") {
+    Elements.School
+            .Table
+            .style
+            .display = "none";
+    return;
+  }
+
+  const filtered = schools.filter(school => FindBy.SchoolName(school, value));
+
+  displaySchools(filtered);
+}
+
+function onError(error){
+  console.error("Error loading heats data: ", error);
+}
+
+/*
+ * Run
+ */
+
+setGlobalEvents();
+
+fetch(heatsDataUrl)
+  .then(mapResponseTextToJSON)
+  .then(mapToHeatsModel)
+  .then(hookUpEvents)
+  .catch(onError)
 
 </script>
   
