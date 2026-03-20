@@ -42,26 +42,49 @@
   margin: 15px 0 25px 0;
 }
 
-#heatTable {
+#schoolTable {
   border-collapse: collapse;
-  width: 100%;
+  /*width: 100%;*/
   display: none; /* HIDDEN UNTIL SEARCH */
 }
 
-#heatTable th,
-#heatTable td {
-  border-bottom: 1px solid #ddd;
+#schoolTable th,
+#schoolTable td {
   padding: 10px;
   text-align: left;
 }
 
-#heatTable tr:hover {
-  background-color: #f5f5f5;
+#schoolTable th,
+#schoolTable td.line {
+  border-bottom: 1px solid #ddd;
 }
 
-#heatTable th {
+#schoolTable tr:hover {
+  background-color: #89cddf;
+}
+
+#schoolTable th {
   background-color: #fafafa;
 }
+
+#heatInfo {
+  min-width: 20em;
+}
+
+#heatInfo .label {
+  width: 2em;
+  padding-right: 1em;
+}
+
+#heatInfo table {
+  width: 100%;
+}
+
+#heatInfo table table {
+  border-top: 1px solid #ddd;
+}
+
+
 </style>
 
 <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -150,29 +173,6 @@ function setGlobalEvents(){
   });
 }
 
-function displayRows(data) {
-  Elements.Heats.TableBody.innerHTML = "";
-
-  if (data.length === 0) {
-    Elements.Heats.TableBody.innerHTML = "<tr><td colspan='5'>No results found.</td></tr>";
-  } else {
-    data.forEach(row => {
-      Elements.Heats.TableBody.innerHTML += `
-        <tr>
-          <td>${row.school || ""}</td>
-          <td>${row.division || ""}</td>
-          <td><button popovertarget="heat-info">${row.heat || ""}</button></td>
-          <td>${row.date || ""}</td>
-          <td>${row.venue || ""}</td>
-        </tr>
-      `;
-    });
-  }
-
-  // SHOW TABLE ONLY AFTER SEARCH
-  Elements.School.Table.style.display = "table";
-}
-
 function clearHeatInfoTable() {
   Elements.Heats.TableHeader.innerHTML = "";
   Elements.Heats.TableBody.innerHTML = "";
@@ -218,11 +218,11 @@ function displayHeatsFromElement(event){
 
   Elements.Heats.TableHeader.innerHTML = `<tr><th colspan="2">Heat (${heat.id})</th></tr>`;
   var heatInfoHtml = `
-  <tr><td>Venue</td><td>${heat.venue.name}</td></tr>
-  <tr><td>Date</td><td>${dateFormater.format(heatDate)}</td></tr>
-  <tr><td>Division</td><td>${heat.division}</td></tr>
-  <tr><td>MC</td><td>${heat.mc}</td></tr>
-  <tr><td>Venue Address</td><td>${heat.venue.address ?? "TBA"}</td></tr>
+  <tr><td class="label">Venue</td><td>${heat.venue.name}</td></tr>
+  <tr><td class="label">Date</td><td>${dateFormater.format(heatDate)}</td></tr>
+  <tr><td class="label">Division</td><td>${heat.division}</td></tr>
+  <tr><td class="label">MC</td><td>${heat.mc}</td></tr>
+  <tr><td class="label">Venue Address</td><td>${heat.venue.address ?? "TBA"}</td></tr>
   `;
   heatInfoHtml += `
   <tr>
@@ -270,19 +270,22 @@ function displaySchools(data) {
       if(!(school.teams?.length ?? 0)) {
         schoolRowHtml += `
         <tr>
-          <td>${school.schoolName}</td>
-          <td colspan=2>- No Teams -</td>
+          <td class="line">${school.schoolName}</td>
+          <td class="line" colspan=2>- No Teams -</td>
         </tr>
         `;
       }else{
         school.teams.forEach((team, i, a) => {
           const id = `${school.schoolId}-${team.id}`;
           const anchorStyle = ``;
+
+          const isLast = i == a.length - 1;
+          const cellClass = isLast ? ` class="line"` : "";
           schoolRowHtml += `
             <tr style="anchor-name: --anchor-${id} " class="${ElementNames.Heats.Row}" data-id="${id}" data-team='${btoa(JSON.stringify(team))}'>
-              <td>${i == 0 ? school.schoolName : ""}</td>
-              <td>${team.name}</td>
-              <td>${team.division}</td>
+              <td ${cellClass}>${i == 0 ? school.schoolName : ""}</td>
+              <td class="line">${team.name}</td>
+              <td class="line">${team.division}</td>
             </tr>
             `;
         });
