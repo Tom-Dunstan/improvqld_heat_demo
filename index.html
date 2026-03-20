@@ -124,8 +124,9 @@ class Elements {
 }
 
 Object.defineProperty(Elements.Heats, "TableRows", {
-  value: () => document.querySelectorAll(`.${ElementNames.Heats.Row}`),
-  writeable: false,
+  get () {
+    return document.querySelectorAll(`.${ElementNames.Heats.Row}`);
+  },
   enumerable: true,
   configurable: false
 }); 
@@ -288,9 +289,8 @@ function displaySchools(data) {
       }
 
       Elements.School.TableBody.innerHTML = schoolRowHtml;
-            
-      // const heatRows = docuent.querySelectorAll(`.${ElementNames.Heats.Row}`);
-      const heatRows = Elements.Heats.TableRows();
+
+      const heatRows = Elements.Heats.TableRows;
 
       heatRows.forEach(row => {
         row.addEventListener("mouseover", e => {
