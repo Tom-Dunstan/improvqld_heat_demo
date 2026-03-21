@@ -52,9 +52,9 @@
         "id": "SN3",
         "division": "Senior",
         "date": "26 May 2026",
-        "venueId": 1,
+        "venueId": 12,
         "mcId": 0,
-        "teams": [27, 45, 73, 65, 60, 5]
+        "teams": [27, 45, 73, 65, 60, 4]
     },
     {
         "id": "SW1",
@@ -70,7 +70,7 @@
         "date": "3 June 2026",
         "venueId": 6,
         "mcId": 0,
-        "teams": [21, 25, 82, 74, 66, 22]
+        "teams": [21, 24, 81, 74, 66, 22]
     },
     {
         "id": "SS1",
@@ -86,7 +86,7 @@
         "date": "6 Jun 2026",
         "venueId": 9,
         "mcId": 0,
-        "teams": [4, 47, 53, 76, 31, 68]
+        "teams": [5, 47, 53, 76, 31, 68]
     },
     {
         "id": "JC2",
@@ -100,9 +100,9 @@
         "id": "JC3",
         "division": "Junior",
         "date": "9 June 2026",
-        "venueId": 1,
+        "venueId": 12,
         "mcId": 0,
-        "teams": [71, 6, 86, 24, 41, 14]
+        "teams": [71, 6, 86, 25, 41, 14]
     },
     {
         "id": "SC3",
@@ -118,69 +118,87 @@
         "date": "11 June 2026",
         "venueId": 2,
         "mcId": 0,
-        "teams": [1, 2, 81, 67, 51, 43]
+        "teams": [1, 2, 82, 67, 51, 43]
     }
   ],
   "Venues": [
     {
         "id": 0,
         "name": "TBA",
-        "address": "TBA"
+        "address": "TBA",
+        "locationLink": ""
     },
     {
         "id": 1,
         "name": "AHS",
-        "address": "TBA"
+        "address": "TBA",
+        "locationLink": ""
     },
     {
         "id": 2,
-        "name": "Albany Creek",
-        "address": "TBA"
+        "name": "Albany Creek SHS",
+        "address": "Albany Forest Drive, Albany Creek",
+        "locationLink": "https://improvqld.com.au/s/AC-SHS-map.pdf"
     },
     {
         "id": 3,
         "name": "Aspley SHS",
-        "address": "TBA"
+        "address": "651 Zillmere Rd Aspley",
+        "locationLink": "https://improvqld.com.au/s/Aspley_School-Map-TheatreSports.pdf"
     },
     {
         "id": 4,
-        "name": "IGGS",
-        "address": "TBA"
+        "name": "Ipswich Girls Grammar School",
+        "address": "Chermside Rd & Queen Victoria Pde Ipswich",
+        "locationLink": "https://improvqld.com.au/s/IGGS-Campus-Map-TSports.pdf"
     },
     {
         "id": 5,
         "name": "Iona",
-        "address": "TBA"
+        "address": "85 North Rd",
+        "locationLink": ""
     },
     {
         "id": 6,
-        "name": "Nudgee",
-        "address": "TBA"
+        "name": "St Josephs Nudgee",
+        "address": "2199 Sandgate Rd Boondall",
+        "locationLink": "https://improvqld.com.au/s/Nudgee-map.pdf"
     },
     {
         "id": 7,
         "name": "Padua College",
-        "address": "TBA"
+        "address": "80 Turner Rd Kedron",
+        "locationLink": "https://improvqld.com.au/s/Padua_Assisi-Campus-Auditorium.jpg"
     },
     {
         "id": 8,
-        "name": "Sheldon",
-        "address": "TBA"
+        "name": "Sheldon College",
+        "address": "43 - 77 Taylor Rd Sheldon ",
+        "locationLink": "https://improvqld.com.au/s/Sheldon_College-Map-Public-Version.pdf"
     },
     {
         "id": 9,
         "name": "St Josephs Gregory Tce",
-        "address": "TBA"
+        "address": "285 Gregory Ter Spring Hill",
+        "locationLink": "https://improvqld.com.au/s/Terrace-map.pdf"
     },
     {
         "id": 10,
-        "name": "St Lauries",
-        "address": "TBA"
+        "name": "St Laurences",
+        "address": "82 Stephens Rd South Brisbane",
+        "locationLink": "https://improvqld.com.au/s/St-Laurences-map.pdf"
     },
     {
         "id": 11,
-        "name": "St Pats",
-        "address": "TBA"
+        "name": "St Patricks",
+        "address": "60 Park Pde Shorncliffe",
+        "locationLink": "https://improvqld.com.au/s/St-Pats-maps.pdf"
+    },
+    {
+        "id": 12,
+        "name": "All Hallows",
+        "address": "547 Ann St Brisbane",
+        "locationLink": "https://improvqld.com.au/s/AHS_School-Map-2025.pdf"
     }
   ],
   "MCs": [

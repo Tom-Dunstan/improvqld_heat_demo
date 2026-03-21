@@ -7,6 +7,12 @@
   <h2>Find Your Theatresports Heat</h2>
 
   <input type="text" id="schoolSearch" placeholder="Type your school name...">
+  <div id="schoolSearchSelection">
+  </div>
+
+  <div id="heats-for-school">
+  </div>
+
 
   <table id="schoolTable" style="margin: 5; display: none; anchor-name: --schoolTable;">
     <thead></thead>
@@ -39,7 +45,38 @@
   width: 100%;
   max-width: 400px;
   font-size: 16px;
-  margin: 15px 0 25px 0;
+  margin: 15px 0 0 0;
+  anchor-name: --schoolSearch;
+}
+
+#schoolSearchSelection {
+  display: none;
+  border: 1px solid;
+  border-top: none;
+  position: absolute;
+  position-anchor: --schoolSearch;
+  width: anchor-size();
+  top: anchor(bottom);
+  left: anchor(left);
+  z-index: 9999;
+}
+
+#schoolSearchSelection a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  background-color: white
+}
+
+#schoolSearchSelection a:hover {background-color: #f1f1f1}
+
+#heats-for-school .label {
+  font-weight: bold;
+}
+
+.team-division {
+  font-weight: bold;
 }
 
 #schoolTable {
@@ -120,6 +157,8 @@ class SortBy {
 class ElementNames {
   static School = {
     Search: "schoolSearch",
+    SearchSelection: "schoolSearchSelection",
+    Heats: "heats-for-school",
     Table: "schoolTable" 
   };
   static Heats = {
@@ -132,7 +171,9 @@ class ElementNames {
 
 class Elements {
   static School = {
-    Search:document.getElementById(ElementNames.School.Search), 
+    Search: document.getElementById(ElementNames.School.Search), 
+    SearchSelection: document.getElementById(ElementNames.School.SearchSelection), 
+    Heats: document.getElementById(ElementNames.School.Heats),
     Table: document.getElementById(ElementNames.School.Table),
     TableHeader: document.querySelector(`#${ElementNames.School.Table} thead`),
     TableBody: document.querySelector(`#${ElementNames.School.Table} tbody`)
@@ -146,6 +187,14 @@ class Elements {
   };
 }
 
+Object.defineProperty(Elements.School, "SearchItems", {
+  get () {
+    return document.querySelectorAll(`#${ElementNames.School.SearchSelection} a`);
+  },
+  enumerable: true,
+  configurable: false
+}); 
+
 Object.defineProperty(Elements.Heats, "TableRows", {
   get () {
     return document.querySelectorAll(`.${ElementNames.Heats.Row}`);
@@ -153,6 +202,44 @@ Object.defineProperty(Elements.Heats, "TableRows", {
   enumerable: true,
   configurable: false
 }); 
+
+class Templates {
+  static School = `
+    <table>
+      <thead>
+        <tr><th>{school-name}</th></tr>
+      </thead>
+      <tbody>
+        {team-heats}
+      </tbody>
+    </table>`.trim();
+  static Team = `
+<tr>
+  <td>
+    <table data-teamid="{team-id}">
+      <thead></thead>
+      <tbody>
+        <tr><td><span class="team-division">{team-division}<span> - {team-name}</td></tr>
+        {heats}
+      </tbody>
+    </table>
+  <td>
+<tr>`.trim();
+  static Heats = `
+<tr>
+  <td colspan="2">
+    <table>
+      <thead></thead>
+      <tbody>
+        <tr><td class="label" colspan="2">📅 {heat-date}</td></tr>
+        <tr><td class="label">Heat</td><td>{heat-id}</td></tr>
+        <tr><td class="label">Location</td><td><a href="{heat-venue-location-link}" target="_blank">{heat-venue-name}</a></td></tr>
+        <tr><td class="label">Address</td><td>{heat-address}</td></tr>
+      </tbody>
+    </table>
+  </td>
+</tr>`.trim();
+}
 
 /* Formating */
 class DateFormat {
@@ -167,7 +254,11 @@ class DateFormat {
 };
 const dateFormater = new Intl.DateTimeFormat(DateFormat.Locality,DateFormat.Options);
 
-function setGlobalEvents(){
+function setGlobalEvents () {
+  //Elements.School.Search.addEventListener("blur", () => hideSchoolSearchSelection());
+}
+
+function setGlobalEvents_old(){
     Elements.School.Table.addEventListener("mouseout", e => {
     Elements.Heats.Popover.hidePopover();
   });
@@ -341,7 +432,7 @@ const mapToHeatsModel = heatsJson => {
                                      return {
                                        id: h.id,
                                        division: h.division,
-                                       venue: {name: venue.name, address: venue.address},
+                                       venue: {name: venue.name, address: venue.address, locationLink: venue.locationLink},
                                        mc: mc.name,
                                        date: heatDate,
                                        teams: heatTeams
@@ -381,7 +472,21 @@ const hookUpEvents = schools => {
 /*
  * Event Hadnlers
  */
+
 function onSearchKeyUp(element, schools) {
+  const value = element.value.trim().toLowerCase();
+
+  if(!value || value === ""){
+    hideSchoolSearchSelection();
+    return;
+  }
+
+  const filtered = schools.filter(school => FindBy.SchoolName(school, value));
+
+  displaySchoolOptions(filtered);
+}
+
+function onSearchKeyUp_old(element, schools) {
 
   const value = element.value.trim().toLowerCase();
 
@@ -401,6 +506,79 @@ function onSearchKeyUp(element, schools) {
 
 function onError(error){
   console.error("Error loading heats data: ", error);
+}
+
+function clearSchoolSearchSelection() { Elements.School.SearchSelection.innerHTML = ""; }
+function hideSchoolSearchSelection() { 
+  Elements.School.SearchSelection.style.display = "none"; 
+}
+
+function showSchoolSearchSelection() { Elements.School.SearchSelection.style.display = "block"; }
+
+function reduceTeamHeats(html, heat){
+  html += Templates.Heats
+                   .replace("{heat-date}", `${dateFormater.format(new Date(heat.date))}`)
+                   .replace("{heat-id}", heat.id)
+                   .replace("{heat-venue-name}", heat.venue.name)
+                   .replace("{heat-venue-location-link}", heat.venue.locationLink)
+                   .replace("{heat-address}", heat.venue.address);
+
+  return html;
+}
+
+function reduceTeam(html, team){
+
+  const heatsHtml = team.heats.reduce(reduceTeamHeats, "");
+
+  html += Templates.Team
+                    .replace("{team-id}", team.id)
+                    .replace("{team-division}", team.division)
+                    .replace("{team-name}", team.name)
+                    .replace("{heats}", heatsHtml);
+  return html;
+}
+
+function renderSchoolTemaplate(school){
+  Elements.School.Search.value = school.schoolName;
+
+  const teamsHeatsHtml = school.teams.reduce(reduceTeam, "");
+  console.info(teamsHeatsHtml);
+
+  var schoolHtml = Templates.School
+                            .replace("{school-name}", school.schoolName)
+                            .replace("{team-heats}", teamsHeatsHtml);
+
+  return schoolHtml;
+}
+
+function onSchoolSelected(event) {
+  hideSchoolSearchSelection();
+  const school = JSON.parse(atob(event.target.dataset.school));
+
+  var schoolHtml = renderSchoolTemaplate(school);
+
+  console.info(schoolHtml);
+
+  Elements.School.Heats.innerHTML = schoolHtml;
+}
+
+function displaySchoolOptions(schools) {
+  clearSchoolSearchSelection();
+
+  if(!schools?.length) {
+    Elements.School.SearchSelection.innerHTML = "<a>No schools found</a>";
+    showSchoolSearchSelection();
+    return;
+  }
+
+  var schoolSelectionHtml = "";
+
+  schools.forEach(school => {
+    schoolSelectionHtml += `<a data-school="${btoa(JSON.stringify(school))}">${school.schoolName}</a>`;
+  });
+  Elements.School.SearchSelection.innerHTML = schoolSelectionHtml;
+  Elements.School.SearchItems.forEach(item => item.addEventListener("mousedown", onSchoolSelected));
+  showSchoolSearchSelection();
 }
 
 /*
