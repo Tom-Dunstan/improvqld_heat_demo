@@ -13,26 +13,6 @@
   <div id="heats-for-school">
   </div>
 
-
-  <table id="schoolTable" style="margin: 5; display: none; anchor-name: --schoolTable;">
-    <thead></thead>
-    <tbody></tbody>
-  </table>
-
-  <div popover="hint" id="heatInfo" style="position: absolute; position-anchor: --schoolTable; top: anchor(top); left: anchor(right); bottom: auto; margin: 5; margin-right: auto;">
-    <table id="heatInfoTable" style="display: none;">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
-    <div id="heatInfoNotFound" style="display: block;">
-      <h1>No heats found for team</h1>
-      <p>
-        There are currently no heats scheaduled for this team
-      </p>
-    </div>
-  </div>
-
-  </table>
 </div>
 
 <style>
@@ -71,56 +51,55 @@
 
 #schoolSearchSelection a:hover {background-color: #f1f1f1}
 
-#heats-for-school .label {
+#heats-for-school {
+  display: grid;
+}
+
+.teams {
+  display: grid;
+  gap: 15px;
+}
+
+.heat {
+  background-color: azure;
+}
+
+.current-team {
   font-weight: bold;
+  background-color: #a1e1a1;
 }
 
-.team-division {
-  font-weight: bold;
+.card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 15px;
+  background: #fafafa;
 }
 
-#schoolTable {
-  border-collapse: collapse;
-  /*width: 100%;*/
-  display: none; /* HIDDEN UNTIL SEARCH */
+.card h3 {
+  margin: 0 0 8px 0;
 }
 
-#schoolTable th,
-#schoolTable td {
-  padding: 10px;
-  text-align: left;
+.meta {
+  font-size: 14px;
+  margin-bottom: 5px;
 }
 
-#schoolTable th,
-#schoolTable td.line {
-  border-bottom: 1px solid #ddd;
+.venue a {
+  text-decoration: underline;
 }
 
-#schoolTable tr:hover {
-  background-color: #89cddf;
+.heat table {
+  background-color: #ddd;
 }
 
-#schoolTable th {
-  background-color: #fafafa;
+h3, h4, h5 {
+  margin-bottom: 0.5em;
 }
 
-#heatInfo {
-  min-width: 20em;
+h4, h5 {
+  margin-top: 1em;
 }
-
-#heatInfo .label {
-  width: 2em;
-  padding-right: 1em;
-}
-
-#heatInfo table {
-  width: 100%;
-}
-
-#heatInfo table table {
-  border-top: 1px solid #ddd;
-}
-
 
 </style>
 
@@ -148,7 +127,7 @@ class FindBy {
 class SortBy {
   static Name = (a,b) => a.name.localeCompare(b.name);
   static Division = (a,b) => -a.division.localeCompare(b.division);
-  static Date = (a,b) => new Date(a) - new Date(b);
+  static Date = (a,b) => new Date(a.date) - new Date(b.date);
 }
 
 /**
@@ -159,31 +138,14 @@ class ElementNames {
     Search: "schoolSearch",
     SearchSelection: "schoolSearchSelection",
     Heats: "heats-for-school",
-    Table: "schoolTable" 
   };
-  static Heats = {
-    Popover: "heatInfo",
-    Row: "heatrow",
-    Table: "heatInfoTable",
-    NotFound: "heatInfoNotFound"
-  }
 };
 
 class Elements {
   static School = {
     Search: document.getElementById(ElementNames.School.Search), 
     SearchSelection: document.getElementById(ElementNames.School.SearchSelection), 
-    Heats: document.getElementById(ElementNames.School.Heats),
-    Table: document.getElementById(ElementNames.School.Table),
-    TableHeader: document.querySelector(`#${ElementNames.School.Table} thead`),
-    TableBody: document.querySelector(`#${ElementNames.School.Table} tbody`)
-  };
-  static Heats = {
-    Popover: document.getElementById(ElementNames.Heats.Popover),
-    Table: document.getElementById(ElementNames.Heats.Table),
-    TableHeader: document.querySelector(`#${ElementNames.Heats.Table} thead`),
-    TableBody: document.querySelector(`#${ElementNames.Heats.Table} tbody`),
-    NotFound: document.getElementById(ElementNames.Heats.NotFound)
+    Heats: document.getElementById(ElementNames.School.Heats)
   };
 }
 
@@ -195,50 +157,58 @@ Object.defineProperty(Elements.School, "SearchItems", {
   configurable: false
 }); 
 
-Object.defineProperty(Elements.Heats, "TableRows", {
-  get () {
-    return document.querySelectorAll(`.${ElementNames.Heats.Row}`);
-  },
-  enumerable: true,
-  configurable: false
-}); 
+class TemplateFields {
+  static School = {
+    Name: "{school-name}",
+  };
+  static Team = {
+    Id: "{team-id}",
+    Name: "{team-name}",
+    Division: "{team-division}",
+    Heats: "{team-heats}",
+    Current: "{team-current-class}"
+  };
+  static Heat = {
+    Id: "{heat-id}",
+    Date: "{heat-date}",
+    Venue: {
+      Name: "{heat-venue-name}",
+      LocationUrl: "{heat-venue-location-url}",
+      Address: "{heat-venue-address}"
+    },
+    Teams: "{heat-teams}"
+  };
+}
 
 class Templates {
   static School = `
-    <table>
-      <thead>
-        <tr><th>{school-name}</th></tr>
-      </thead>
-      <tbody>
-        {team-heats}
-      </tbody>
-    </table>`.trim();
+    <h3>${TemplateFields.School.Name}</h3>
+    <div class="teams">
+      ${TemplateFields.Team.Heats}
+    <div>
+  `.trim();
   static Team = `
-<tr>
-  <td>
-    <table data-teamid="{team-id}">
-      <thead></thead>
-      <tbody>
-        <tr><td><span class="team-division">{team-division}<span> - {team-name}</td></tr>
-        {heats}
-      </tbody>
-    </table>
-  <td>
-<tr>`.trim();
+    <div class="team card" data-teamid="${TemplateFields.Team.Id}">
+      <div class="meta"><strong>${TemplateFields.Team.Division}</strong> - ${TemplateFields.Team.Name}</div>
+      <h4>Heats</h4>
+      ${TemplateFields.Team.Heats}
+    </div>`.trim();
   static Heats = `
-<tr>
-  <td colspan="2">
-    <table>
-      <thead></thead>
-      <tbody>
-        <tr><td class="label" colspan="2">📅 {heat-date}</td></tr>
-        <tr><td class="label">Heat</td><td>{heat-id}</td></tr>
-        <tr><td class="label">Location</td><td><a href="{heat-venue-location-link}" target="_blank">{heat-venue-name}</a></td></tr>
-        <tr><td class="label">Address</td><td>{heat-address}</td></tr>
-      </tbody>
-    </table>
-  </td>
-</tr>`.trim();
+    <div class="heat">
+      <div class="meta">📅 ${TemplateFields.Heat.Date}</div>
+      <div class="meta">Heat: ${TemplateFields.Heat.Id}</div>
+      <div class="meta venue">Location: <a href="${TemplateFields.Heat.Venue.LocationUrl}" target="_blank">${TemplateFields.Heat.Venue.Name}</a></div>
+      <div class="meta">Address: ${TemplateFields.Heat.Venue.Address}</div>
+      <h5>Teams</h5>
+      <table>
+        <thead></thead>
+        <tbody>
+          ${TemplateFields.Heat.Teams}
+        </tbody>
+      </table>
+    </div>`.trim();
+  static HeatTeams = `
+    <tr class="${TemplateFields.Team.Current}"><td>${TemplateFields.School.Name}</td><td>${TemplateFields.Team.Name}</td></tr>`.trim()
 }
 
 /* Formating */
@@ -253,160 +223,6 @@ class DateFormat {
   }
 };
 const dateFormater = new Intl.DateTimeFormat(DateFormat.Locality,DateFormat.Options);
-
-function setGlobalEvents () {
-  //Elements.School.Search.addEventListener("blur", () => hideSchoolSearchSelection());
-}
-
-function setGlobalEvents_old(){
-    Elements.School.Table.addEventListener("mouseout", e => {
-    Elements.Heats.Popover.hidePopover();
-  });
-}
-
-function clearHeatInfoTable() {
-  Elements.Heats.TableHeader.innerHTML = "";
-  Elements.Heats.TableBody.innerHTML = "";
-};
-
-function noHeatFound() {
-  clearHeatInfoTable();
-
-  Elements.Heats.Table.style.display = "none";
-  Elements.Heats.NotFound.style.display = "block";
-}
-
-function showHeatInfo() {
-  Elements.Heats.NotFound.style.display = "none";
-  Elements.Heats.Table.style.display = "table";
-}
-
-function displayHeatsFromElement(event){
-  if(!event){
-    noHeatFound();
-    return;
-  }
-
-  const element = event.target.closest(`.${ElementNames.Heats.Row}`);
-
-  if(!element?.dataset?.team) {
-    noHeatFound();
-    return;
-  }
-
-  const teamtData = atob(element.dataset.team);
-  const team = JSON.parse(teamtData);
-
-  if(!team?.heats?.length){
-    noHeatFound();
-    return;
-  }
-  
-  
-
-  const heat = team.heats[0];
-  const heatDate = new Date(heat.date);
-
-  Elements.Heats.TableHeader.innerHTML = `<tr><th colspan="2">Heat (${heat.id})</th></tr>`;
-  var heatInfoHtml = `
-  <tr><td class="label">Venue</td><td>${heat.venue.name}</td></tr>
-  <tr><td class="label">Date</td><td>${dateFormater.format(heatDate)}</td></tr>
-  <tr><td class="label">Division</td><td>${heat.division}</td></tr>
-  <tr><td class="label">MC</td><td>${heat.mc}</td></tr>
-  <tr><td class="label">Venue Address</td><td>${heat.venue.address ?? "TBA"}</td></tr>
-  `;
-  heatInfoHtml += `
-  <tr>
-    <td colspan=2>
-      <table>
-        <thead><tr><th colspan=2>Teams</th></tr></thead>
-        <tbody>`;
-  heat.teams.forEach(heatTeam =>{
-    const rowStyle = heatTeam.teamId == team.id ? ' style="font-weight: bold;"' : "";
-    heatInfoHtml +=`
-         <tr${rowStyle}><td>${heatTeam.school}</td><td>${heatTeam.team}</td></tr>
-    `;
-  });
-  heatInfoHtml += `
-        </tbody>
-      </table>
-    </td>
-  </tr>`;  
-
-  Elements.Heats.TableBody.innerHTML = heatInfoHtml;
-  showHeatInfo();
-}
-
-function displaySchools(data) {
-  
-  Elements.School.TableHeader.innerHTML = "";
-  Elements.School.TableBody.innerHTML = "";
-
-  if (data.length === 0) {
-    Elements.School.TableBody.innerHTML = "<tr><td colspan='5'>No results found.</td></tr>";
-  } else {
-    Elements.School.TableHeader.innerHTML = `
-      <tr>
-        <th>School</th>
-        <th>Teams</th>
-        <th>Division</th>
-      </tr>
-    `;
-
-    var schoolRowHtml = "";
-      
-    data.forEach(school => {
-      if(!school) return;
-
-      if(!(school.teams?.length ?? 0)) {
-        schoolRowHtml += `
-        <tr>
-          <td class="line">${school.schoolName}</td>
-          <td class="line" colspan=2>- No Teams -</td>
-        </tr>
-        `;
-      }else{
-        school.teams.forEach((team, i, a) => {
-          const id = `${school.schoolId}-${team.id}`;
-          const anchorStyle = ``;
-
-          const isLast = i == a.length - 1;
-          const cellClass = isLast ? ` class="line"` : "";
-          schoolRowHtml += `
-            <tr style="anchor-name: --anchor-${id} " class="${ElementNames.Heats.Row}" data-id="${id}" data-team='${btoa(JSON.stringify(team))}'>
-              <td ${cellClass}>${i == 0 ? school.schoolName : ""}</td>
-              <td class="line">${team.name}</td>
-              <td class="line">${team.division}</td>
-            </tr>
-            `;
-        });
-      }
-
-      Elements.School.TableBody.innerHTML = schoolRowHtml;
-
-      const heatRows = Elements.Heats.TableRows;
-
-      heatRows.forEach(row => {
-        row.addEventListener("mouseover", e => {
-          displayHeatsFromElement(e);
-          Elements.Heats.Popover.showPopover({source: row});
-        });
-
-        row.addEventListener("focus", e => {
-          displayHeatsFromElement(e);
-          Elements.Heats.Popover.showPopover({source: row});
-        });
-
-        row.addEventListener("blur", e => {
-          Elements.Heats.PopovererElement.hidePopover();
-        });
-      });
-    });
-  }
-
-  // SHOW TABLE ONLY AFTER SEARCH
-  Elements.School.Table.style.display = "table";
-}
 
 const mapResponseTextToJSON = response => response.json();
 
@@ -486,24 +302,6 @@ function onSearchKeyUp(element, schools) {
   displaySchoolOptions(filtered);
 }
 
-function onSearchKeyUp_old(element, schools) {
-
-  const value = element.value.trim().toLowerCase();
-
-  // If search box is empty → hide table again
-  if (value === "") {
-    Elements.School
-            .Table
-            .style
-            .display = "none";
-    return;
-  }
-
-  const filtered = schools.filter(school => FindBy.SchoolName(school, value));
-
-  displaySchools(filtered);
-}
-
 function onError(error){
   console.error("Error loading heats data: ", error);
 }
@@ -515,26 +313,39 @@ function hideSchoolSearchSelection() {
 
 function showSchoolSearchSelection() { Elements.School.SearchSelection.style.display = "block"; }
 
-function reduceTeamHeats(html, heat){
+function reduceHeatTeams(html, team, teamId) {
+  const rowClass =  team.teamId === teamId ? "current-team" : "";
+
+  html += Templates.HeatTeams
+                   .replace(TemplateFields.School.Name, team.school)
+                   .replace(TemplateFields.Team.Name, team.team)
+                   .replace(TemplateFields.Team.Current, rowClass);
+  return html;
+}
+
+function reduceTeamHeats(html, heat, teamId) {
+  const heatTeamsHtml = heat.teams.reduce((teamHtml, team) => reduceHeatTeams(teamHtml, team, teamId), "");
+
   html += Templates.Heats
-                   .replace("{heat-date}", `${dateFormater.format(new Date(heat.date))}`)
-                   .replace("{heat-id}", heat.id)
-                   .replace("{heat-venue-name}", heat.venue.name)
-                   .replace("{heat-venue-location-link}", heat.venue.locationLink)
-                   .replace("{heat-address}", heat.venue.address);
+                   .replace(TemplateFields.Heat.Date, `${dateFormater.format(new Date(heat.date))}`)
+                   .replace(TemplateFields.Heat.Id, heat.id)
+                   .replace(TemplateFields.Heat.Venue.Name, heat.venue.name)
+                   .replace(TemplateFields.Heat.Venue.LocationUrl, heat.venue.locationLink)
+                   .replace(TemplateFields.Heat.Venue.Address, heat.venue.address)
+                   .replace(TemplateFields.Heat.Teams, heatTeamsHtml);
 
   return html;
 }
 
-function reduceTeam(html, team){
+function reduceTeam(html, team) {
 
-  const heatsHtml = team.heats.reduce(reduceTeamHeats, "");
+  const heatsHtml = team.heats.reduce((heatHtml, heat) => reduceTeamHeats(heatHtml, heat, team.id), "");
 
   html += Templates.Team
-                    .replace("{team-id}", team.id)
-                    .replace("{team-division}", team.division)
-                    .replace("{team-name}", team.name)
-                    .replace("{heats}", heatsHtml);
+                    .replace(TemplateFields.Team.Id, team.id)
+                    .replace(TemplateFields.Team.Division, team.division)
+                    .replace(TemplateFields.Team.Name, team.name)
+                    .replace(TemplateFields.Team.Heats, heatsHtml);
   return html;
 }
 
@@ -542,11 +353,11 @@ function renderSchoolTemaplate(school){
   Elements.School.Search.value = school.schoolName;
 
   const teamsHeatsHtml = school.teams.reduce(reduceTeam, "");
-  console.info(teamsHeatsHtml);
+  // console.info(teamsHeatsHtml);
 
   var schoolHtml = Templates.School
-                            .replace("{school-name}", school.schoolName)
-                            .replace("{team-heats}", teamsHeatsHtml);
+                            .replace(TemplateFields.School.Name, school.schoolName)
+                            .replace(TemplateFields.Team.Heats, teamsHeatsHtml);
 
   return schoolHtml;
 }
@@ -584,8 +395,6 @@ function displaySchoolOptions(schools) {
 /*
  * Run
  */
-
-setGlobalEvents();
 
 fetch(heatsDataUrl)
   .then(mapResponseTextToJSON)
