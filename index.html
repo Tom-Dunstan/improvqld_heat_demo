@@ -7,8 +7,8 @@
   <h2>Find Your Theatresports Heat</h2>
 
   <input type="text" id="schoolSearch" placeholder="Type your school name...">
-  <div id="schoolSearchSelection">
-  </div>
+
+  <div id="schoolSearchSelection"></div>
 
   <div id="heats-for-school">
   </div>
@@ -51,8 +51,18 @@
 
 #schoolSearchSelection a:hover {background-color: #f1f1f1}
 
+#downloadPDF {
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  background-color: #FDBA12;
+  border: none;
+  color: #fff; /* ← change this to white */
+  font-weight: bold;
+}
+
 #heats-for-school {
-  display: grid;
+  display: none;
 }
 
 .teams {
@@ -138,6 +148,7 @@ class ElementNames {
     Search: "schoolSearch",
     SearchSelection: "schoolSearchSelection",
     Heats: "heats-for-school",
+    PdfButton: "downloadPDF"
   };
 };
 
@@ -152,6 +163,14 @@ class Elements {
 Object.defineProperty(Elements.School, "SearchItems", {
   get () {
     return document.querySelectorAll(`#${ElementNames.School.SearchSelection} a`);
+  },
+  enumerable: true,
+  configurable: false
+}); 
+
+Object.defineProperty(Elements.School, "PdfButton", {
+  get () {
+    return document.querySelectorAll(`#${ElementNames.School.PdfButton} a`);
   },
   enumerable: true,
   configurable: false
@@ -353,7 +372,6 @@ function renderSchoolTemaplate(school){
   Elements.School.Search.value = school.schoolName;
 
   const teamsHeatsHtml = school.teams.reduce(reduceTeam, "");
-  // console.info(teamsHeatsHtml);
 
   var schoolHtml = Templates.School
                             .replace(TemplateFields.School.Name, school.schoolName)
@@ -368,9 +386,12 @@ function onSchoolSelected(event) {
 
   var schoolHtml = renderSchoolTemaplate(school);
 
-  console.info(schoolHtml);
+  Elements.School.Heats.innerHTML = `<button id="downloadPDF" style="display: inline-block;">Download Your Schedule (PDF)</button>
+  ${schoolHtml}`;
 
-  Elements.School.Heats.innerHTML = schoolHtml;
+  document.getElementById("downloadPDF").addEventListener("click", () => downloadPdfFile(school));
+
+  Elements.School.Heats.style.display = "grid";
 }
 
 function displaySchoolOptions(schools) {
@@ -391,6 +412,60 @@ function displaySchoolOptions(schools) {
   Elements.School.SearchItems.forEach(item => item.addEventListener("mousedown", onSchoolSelected));
   showSchoolSearchSelection();
 }
+
+function downloadPdfFile(school) {
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 10;
+
+  doc.setFontSize(16);
+  doc.text("Theatresports Schedule", 10, y);
+  y += 10;
+
+  doc.text(`${school.schoolName}`, 10, y); y += 10;
+  
+  doc.setFontSize(12);
+  school.teams.forEach(team => {
+
+    doc.setTextColor(0, 0, 0); // reset to black
+
+    doc.text(`${team.division} – ${team.name}`, 10, y); y += 6;
+
+    team.heats.forEach(heat =>{
+
+      doc.text(`Heat: ${heat.id}`, 10, y); y += 6;
+      doc.text(`Date: ${heat.date}`, 10, y); y += 6;
+      doc.text(`Venue: ${heat.venue.name}`, 10, y); y += 6;
+      doc.text(`Address: ${heat.venue.address || ""}`, 10, y); y += 6;
+
+      if(heat.venue.locationLink) {
+              doc.setTextColor(0, 102, 204); // blue
+        doc.textWithLink("Open Venue Map", 10, y, { url: heat.venue.locationLink });
+
+        // underline
+        const textWidth = doc.getTextWidth("Open Venue Map");
+        doc.line(10, y + 1, 10 + textWidth, y + 1);
+
+        y += 6;
+
+        doc.setTextColor(0, 0, 0); // reset
+      }
+
+      y += 4;
+
+      if (y > 270) {
+        doc.addPage();
+        y = 10;
+      }
+
+    });
+  });
+
+  doc.save("theatresports-schedule.pdf");
+};
+
 
 /*
  * Run
