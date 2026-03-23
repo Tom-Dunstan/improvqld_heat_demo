@@ -54,7 +54,8 @@
       #downloadPDF {
         display: inline-block;
         padding: 10px 15px;
-        margin-bottom: 20px;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
         cursor: pointer;
         background-color: #FDBA12;
         border: none;
@@ -478,7 +479,7 @@ const mapToHeatsModel = heatsJson => {
                                    .map(h => {
                                      const venue = heatsJson.Venues.find(v => FindBy.Id(v, h.venueId));
                                      const mc = heatsJson.Venues.find(v => FindBy.Id(v, h.mcId));
-                                     const heatDate = new Date(`${h.date}+10:00`);
+                                     const heatDate = new Date(`${h.date}`);
                                      const heatTeams = h.teams.map(id => {
                                      const heatTeam = heatsJson.Teams.find(t => FindBy.Id(t, id));
                                      const teamSchool = heatsJson.Schools.find(s => FindBy.Id(s, heatTeam.schoolId));
