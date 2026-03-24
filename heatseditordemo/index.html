@@ -1,0 +1,644 @@
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <style id="header-navbar-style">
+
+:root {
+  --body-gradient: linear-gradient(to top,
+    hsl(217deg 19% 27%), 
+    hsl(221deg 39% 11%), 
+    hsl(0deg 0% 0%));
+
+  --group-background-colour: hsl(217deg 19% 20% / 50%);
+
+}
+
+body {
+  min-block-size: 100vb;
+  font-family: sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: hsl(210deg 14% 53%);
+
+  background-image: var(--body-gradient);
+}
+
+.header {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  align-items: center;
+  /* padding: 1rem; */
+  padding-block: 0.8rem;
+  padding-inline: 1rem;
+  margin: 1.5rem 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--group-background-colour);
+}
+
+.header-logo {
+  display: block;
+  height: 2em;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.header-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: 0;
+  font-size: 1rem;
+}
+
+.header-link,
+.menu-link {
+  display: block;
+  padding-inline: 1rem;
+  padding-block: 0.5rem;
+  color: hsl(210deg 14%  53% / 70%);
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: color 0.2s ease-in-out;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.header-link {
+  margin-left: -0.5rem;
+} 
+
+.menu-link {
+  text-align: center;
+}
+
+.header-link:hover,
+.menu-link:hover,
+.menu-link.selected {
+  color: hsl(210deg 14% 70% / 90%);
+  background-color: hsl(217deg 19% 20% / 70%);
+}
+
+.header-link:hover,
+.menu-link:hover {
+  cursor: pointer;
+}
+
+input.upload {
+  display: none;
+}
+
+#content-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; 
+  gap: 2rem;
+  padding-block: 0.8rem;
+  padding-inline: 1rem;
+  margin: 0;
+}
+
+menu {
+  display: block;
+  padding-block: 0.8rem;
+  padding-inline: 1rem;
+  margin: 0;
+  border-radius: 0.5rem;
+  background-color: var(--group-background-colour);
+}
+
+menu ul {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-inline-start: 0;
+  list-style: none;
+
+}
+
+#page-container:last-child {
+  flex-grow: 1;
+}
+
+section {
+  display: none;
+  padding-block: 0.8rem;
+  padding-inline: 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--group-background-colour);
+}
+
+section h2 {
+  margin-top: 0;
+}
+
+@media screen and (max-width: 755px) {
+  .header {
+    flex-direction: column;
+    padding-block: 1rem;
+    gap: 0;
+  }
+  .header-list {
+    margin-block-start: 1rem;
+    margin-block-end: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .header-link {
+    margin-bottom: -0.5rem;
+  }
+
+}
+
+@media screen and (max-width: 600px) {
+  #content-container {
+    flex-direction: column;
+  }
+}
+
+@media screen and (max-width: 275px) { 
+
+  .header-title {
+    font-size: 1rem;
+  }
+}
+
+  </style>
+  <style id="menu-bar">
+
+details div {
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin-top: 5px;
+}
+  </style>
+</head>
+<body>
+  <div id="body-container">
+
+    <header class="header">
+      <h1 class="header-title">
+        <img class="header-logo" src="https://images.squarespace-cdn.com/content/v1/57953f54e4fcb50843934f00/907d066a-a5ce-4deb-aa96-4cb72dff4a60/IQ+-+MAIN+-+ORANGE.png" alt="Improv Queensland" crossorigin="anonymous">
+        Heats&nbsp;Editor
+      </h1>
+      <nav class="header-nav">
+        <ul class="header-list">
+          <li><a class="header-link" id="previous" href="../index.html">&lt;&lt;&nbsp;Prev</a></li>
+          <li><a class="header-link" id="save" target="_blank" onclick="onSaveButtonClick()">Save</a></li>
+          <li><a class="header-link" id="load-json" target="_blank" onclick="onLoadJsonClick()">Load&nbsp;JSON<input type="file" id="json-upload" accept=".json" class="upload"></input></a></li>
+          <li><a class="header-link" id="load-csv" target="_blank" onclick="onLoadCsvClick()">Load&nbsp;CSV<input type="file" id="csv-upload" accept=".csv" class="upload"></input></a></li>
+          <li><a class="header-link" id="download" target="_blank" onclick="onDownloadClick()">Download</a></li>
+        </ul>
+      </nav>
+    </header>
+    <div id="content-container">
+      <menu id="editor-menu">
+        <ul>
+          <li><a class="menu-link" data-section="schools" target="_blank">Schools</a></li>
+          <li><a class="menu-link" data-section="venues" target="_blank">Venues</a></li>
+          <li><a class="menu-link" data-section="mcs" target="_blank">MCs</a></li>
+          <li><a class="menu-link" data-section="heats" target="_blank">Heats</a></li>
+          <li><a class="menu-link" data-section="all" target="_blank">All</a></li>
+        </ul>
+      </menu>
+      <div id="page-container">
+        <section data-section="schools">
+          <h2>Schools</h2>
+        </section>
+        <section data-section="venues">
+          <h2>Venues</h2>
+        </section>
+        <section data-section="mcs">
+          <h2>MCs</h2>
+        </section>
+        <section data-section="heats">
+          <h2>Heats</h2>
+        </section>
+        <section data-section="all">
+          <h2>All</h2>
+          <details id="schools">
+            <summary><span>Schools</span> (<span id="school-count">0</span>)</summary>
+            <div>
+              <table>
+                <thead><tr><th>Name</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </details>
+          <details id="teams">
+            <summary><span>Teams</span> (<span id="team-count">0</span>)</summary>
+            <div>
+              <table>
+                <thead><tr><th>School</th><th>Division</th><th>Name</th></division></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </details>
+          <details id="venues">
+            <summary><span>Venues</span> (<span id="venue-count">0</span>)</summary>
+            <div>
+              <table>
+                <thead><tr><th>Name</th><th>Address</th><th>Location Link</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </details>
+          <details id="mcs">
+            <summary><span>MCs</span> (<span id="mc-count">0</span>)</summary>
+            <div>
+              <table>
+                <thead><tr><th>Name</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </details>
+          <details id="heats">
+            <summary><span>Heats</span> (<span id="heat-count">0</span>)</summary>
+            <div>
+              <table>
+                <thead><tr><th>ID</th><th>Division</th><th>Date</th><th>Venue</th><th>MC</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </details>
+
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js" crossorigin="anonymous"></script>
+  <script id="editor-scripts">
+
+    class DateFormat {
+      static Locality =  'en-AU';
+      static Options = {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        timeZone: "Australia/Brisbane"
+      }
+    };
+    const dateFormater = new Intl.DateTimeFormat(DateFormat.Locality,DateFormat.Options);
+
+    class StorageKeys {
+      static Heat = {
+        Data: "heats-data"
+      }
+    }
+
+    class Elements {
+      static Upload = {
+        JSON: document.getElementById("json-upload"),
+        Csv: document.getElementById("csv-upload"),
+      };
+      static Menu = {
+        Links: document.querySelectorAll(".menu-link")
+      };
+      static Section = {
+        All: document.querySelectorAll("section")
+      }
+      static Schools = {
+        Count: document.getElementById("school-count"),
+        TableBody: document.querySelectorAll("#schools table tbody")[0]
+      };
+      static Teams = {
+        Count: document.getElementById("team-count"),
+        TableBody: document.querySelectorAll("#teams table tbody")[0]
+      };
+      static Venues = {
+        Count: document.getElementById("venue-count"),
+        TableBody: document.querySelectorAll("#venues table tbody")[0]
+      };
+      static MCs = {
+        Count: document.getElementById("mc-count"),
+        TableBody: document.querySelectorAll("#mcs table tbody")[0]
+      };
+      static Heats = {
+        Count: document.getElementById("heat-count"),
+        TableBody: document.querySelectorAll("#heats table tbody")[0]
+      };
+    }
+
+    class FindBy {
+      static Id = (o, id) => o.id == id;
+      static SchoolId = (o, id) => o.schoolId == id;
+      static SchoolName = (school, value) => school && school.schoolName.toLowerCase().includes(value);
+    }
+
+    class SortBy {
+      static Name = (a,b) => a.name.localeCompare(b.name);
+      static Division = (a,b) => -a.division.localeCompare(b.division);
+      static Date = (a,b) => new Date(a.date) - new Date(b.date);
+    }
+
+    class PopupMessage {
+      static #messageColour = "linear-gradient(to top, hsl(230, 92, 82), rgb(192, 132, 252))";
+      static #errorColour= "linear-gradient(to top, hsl(0, 93%, 52%), hsl(0, 80%, 40%))";
+      static #options = {
+        duration: 3000, // Display duration in milliseconds (3 seconds)
+        gravity: "top", // Position: 'top' or 'bottom'
+        position: "right", // Position: 'left' or 'right'
+        stopOnFocus: true,
+        close: true
+      };
+      static Show = function(text) {
+        Toastify({ 
+          ...this.#options, 
+          text: text,
+          style: { background: this.#messageColour }
+        }).showToast();
+      }
+
+      static ShowError = function(text) {
+        Toastify({ 
+          ...this.#options, 
+          text: text,
+          style: { background: this.#errorColour }
+        }).showToast();
+      };
+    }
+
+    class Download {
+      static #defaultFilename = "Heats.json";
+      static fromJSON = function(data, fileName) {
+        const fileType = "application/json"
+
+        const blob = new Blob([JSON.stringify(data)], { type: fileType });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName || this.#defaultFilename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      };
+    }
+
+    const Data = {
+      heats: null
+    };
+
+    var heatsdata;
+
+    class Render {
+      static Reset = () => {
+        Elements.Schools.Count.innerHTML = 0;
+        Elements.Schools.TableBody.innerHTML = "";
+
+        Elements.Teams.Count.innerHTML = 0;
+        Elements.Teams.TableBody.innerHTML = "";
+
+        Elements.Venues.Count.innerHTML = 0;
+        Elements.Venues.TableBody.innerHTML = "";
+
+        Elements.MCs.Count.innerHTML = 0;
+        Elements.MCs.TableBody.innerHTML = "";
+
+        Elements.Heats.Count.innerHTML = 0;
+        Elements.Heats.TableBody.innerHTML = "";
+      };
+
+      static school = (html,school) => (html += `<tr data-id="${school.id}"><td>${school.name}</td></tr>`);
+
+      static team = (html,team) => {
+        const school = Data.heats.Schools.find(school => FindBy.Id(school, team.schoolId));
+        return (html += `<tr data-id="${team.id}"><td>${school.name}</td><td>${team.division}</td><td>${team.name}</td></tr>`);
+      };
+
+      static venue = (html,venue)  => {
+        return (html += `<tr data-id="${venue.id}"><td>${venue.name}</td><td>${venue.address}</td><td>${venue.locationLink}</td></tr>`);
+      };
+
+      static mc = (html,mc) => {
+        return (html += `<tr data-id="${mc.id}"><td>${mc.name}</td></tr>`)
+      };
+
+      static heat = (html,heat) => {
+        const venue = Data.heats.Venues.find(venue => FindBy.Id(venue, heat.venueId));
+        const mc = Data.heats.MCs.find(mc => FindBy.Id(mc, heat.mcId));
+        const heatDate = dateFormater.format(new Date(heat.date));
+        return (html += `<tr data-id="${heat.id}">
+          <td>${heat.id}</td>
+          <td>${heat.division}</td>
+          <td>${heatDate}</td>
+          <td>${venue.name}</td>
+          <td>${mc.name}</td>
+          </td>
+        </tr>`);
+      };
+    }
+
+    function getEmptySchoolsObject() {return [];}
+    function getEmptyTeamsObject() {return [];}
+    function getEmptyVenuesObject() {return [
+        {
+          "id": 0,
+          "name": "TBA",
+          "address": "TBA",
+          "locationLink": ""
+        }
+      ];
+    }
+    function getEmptyMCsObject() {return [
+        {
+          "id": "0",
+          "name": "TBA"
+        }
+      ];
+    }
+    function getEmptyHeatsObject() {return [];}
+
+    function getNewData() {
+      Data.heats = verifyHeatsData({});
+    }
+
+    function verifyHeatsData(data){
+      if(!data){
+        data = getNewData();
+        return;
+      }
+      if(!data.Schools) data.Schools = getEmptySchoolsObject();
+      if(!data.Teams) data.Teams = getEmptyTeamsObject();
+      if(!data.Venues) data.Venues = getEmptyVenuesObject();
+      if(!data.MCs) data.MCs = getEmptyMCsObject();
+      if(!data.Heats) data.Heats = [];
+
+      return data;
+    }
+
+    function loadheatsDataFromLocalStorage() {
+      dataString = window.localStorage.getItem(StorageKeys.Heat.Data);
+      Data.heats = JSON.parse(dataString);
+
+      verifyHeatsData(Data.heats);
+      renderHeatsData();
+    }
+
+    function saveDataheatsToLocalStorage() {
+      verifyHeatsData(Data.heats);
+
+      try {
+        localStorage.setItem(StorageKeys.Heat.Data, JSON.stringify(Data.heats))
+        PopupMessage.Show("Data saved to local storage");
+      } catch (error){
+        PopupMessage.ShowError(error);
+      }
+    }
+
+    function downloadHeatData() {
+      verifyHeatsData(Data.heats);
+
+      try {
+        Download.fromJSON(Data.heats);
+      } catch (error) {
+        PopupMessage.ShowError(error);
+      }
+    }
+
+    function featureNotImplemented(featureName){
+      PopupMessage.ShowError(`Th${ !featureName ? "e " : `is ${featureName}`} feature is not implemented yet`);
+    }
+
+/*
+ * Event Handlers
+ */
+
+    function onSaveButtonClick() {
+      saveDataheatsToLocalStorage();
+    }
+
+    function onLoadJsonClick() {
+      Elements.Upload.JSON.click();
+    }
+
+    function onJsonUploadChange(event) {
+      const file = event.target.files[0];
+      if (file && file.type === "application/json") {
+        const reader = new FileReader();
+
+        reader.onload = function(e){
+          try {
+            Data.heats = verifyHeatsData(JSON.parse(e.target.result));
+            verifyHeatsData(Data.heats);
+            renderHeatsData();
+            PopupMessage.Show(`File ${"file"} loaded successfully`);
+          } catch (error){
+            console.error("FileReader error:", e.target.error);
+            PopupMessage.ShowError("Error reading file.");
+          }
+        };
+        
+        reader.onerror = function(e) {
+          console.error("FileReader error:", e.target.error);
+          PopupMessage.ShowError("Error reading file.");
+        };
+
+        reader.readAsText(file);
+
+        Elements.Upload.JSON.value = "";
+        return;
+      }
+
+      PopupMessage.Show(`File ${"file"} is not valid`);
+      Elements.Upload.JSON.value = "";
+    }
+
+    function onLoadCsvClick() {
+      Elements.Upload.Csv.click();
+    }
+
+    function onCsvUploadChange(event) {
+      featureNotImplemented("CSV upload");
+      Elements.Upload.Csv.value = "";
+    }
+
+    function onDownloadClick() {
+      downloadHeatData();
+    }
+
+    function onMenuItemClick(e) {
+      const className = "selected";
+      const menuItem = e.target;
+      var sectionName = menuItem?.dataset?.section;
+
+      if(!sectionName) {
+        PopupMessage.ShowError("Section missing");
+      }
+      
+      menuItem.classList.add(className);
+      [...Elements.Menu.Links].filter(l => l.dataset.section !== sectionName)
+                         .forEach(l => l.classList.remove(className));
+
+      Elements.Section.All
+              .forEach(s => {
+                if(s.dataset.section == sectionName) {
+                  s.style.display = "block";
+                } else {
+                  s.style.display = "none";
+                }
+              });
+
+    }
+
+
+    function filterOutTBA(item) {
+      return item.id > 0;
+    }
+
+    function renderHeatsData() {
+      if(!Data.heats) {
+        Render.Reset();
+        return;
+      }
+
+      Elements.Schools.Count.innerHTML = `${Data.heats.Schools?.length ?? 0}`;
+      Elements.Schools.TableBody.innerHTML = Data.heats.Schools
+                                                      .sort(SortBy.Name)
+                                                      .reduce(Render.school, "");
+
+
+      Elements.Teams.Count.innerHTML = `${Data.heats.Teams?.length ?? 0}`;
+      Elements.Teams.TableBody.innerHTML = Data.heats.Teams
+                                                    .sort(SortBy.Name)
+                                                    .sort(SortBy.Division)
+                                                    .reduce(Render.team, "");
+
+      Elements.Venues.Count.innerHTML = `${Data.heats.Venues.length - 1}`;
+      Elements.Venues.TableBody.innerHTML = Data.heats.Venues
+                                                     .filter(filterOutTBA)
+                                                     .sort(SortBy.Name)
+                                                     .reduce(Render.venue, "");
+
+      Elements.MCs.Count.innerHTML = `${Data.heats.MCs.length - 1}`;
+      Elements.MCs.TableBody.innerHTML = Data.heats.MCs
+                                                  .filter(filterOutTBA)
+                                                  .sort(SortBy.Name)
+                                                  .reduce(Render.mc, "");
+
+      Elements.Heats.Count.innerHTML = `${Data.heats.Heats?.length ?? 0}`;
+      Elements.Heats.TableBody.innerHTML = Data.heats.Heats
+                                                    .sort(SortBy.Date)
+                                                    .reduce(Render.heat, "");
+    }
+
+    function hookupGlobalEvents() {
+      Elements.Upload.JSON.addEventListener('change', onJsonUploadChange);
+      Elements.Upload.Csv.addEventListener('change', onCsvUploadChange);
+      Elements.Menu.Links.forEach(l => l.addEventListener('click', onMenuItemClick))
+    }
+
+    hookupGlobalEvents();
+    loadheatsDataFromLocalStorage();
+
+  </script>
+</body>
+</html>

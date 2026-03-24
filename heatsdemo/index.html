@@ -1,0 +1,558 @@
+<html>
+<body>
+  <div class="sqs-block-content" style="max-width: 500px;">
+    <div class="sqs-code-container" data-localized="{&quot;enableSafeModeTitle&quot;:&quot;Embedded Scripts&quot;,&quot;exitSafeModeButton&quot;:&quot;Exit safe preview&quot;,&quot;enableSafeModeText&quot;:&quot;This block contains embedded scripts. Embedded scripts are disabled while you're logged in and editing your site.&quot;,&quot;enableSafeModeButton&quot;:&quot;Preview in safe mode&quot;,&quot;exitSafeModeTitle&quot;:&quot;Safe Preview&quot;,&quot;exitSafeModeText&quot;:&quot;Please view the page after logging out for accurate rendering.&quot;,&quot;globalSafeMode&quot;:&quot;Embedded Code: This block contains embedded code that has been disabled.&quot;,&quot;scriptDisabled&quot;:&quot;Script Disabled&quot;}">
+      <a href="../index.html">Return to menu</a>
+      <div class="timetable-container">
+        <h2>Find Your Theatresports Heat</h2>
+
+        <input type="text" id="schoolSearch" placeholder="Type your school name...">
+
+        <div id="schoolSearchSelection"></div>
+
+        <div id="heats-for-school">
+        </div>
+
+      </div>
+
+      <style>
+      .timetable-container {
+        max-width: 100%;
+      }
+
+      #schoolSearch {
+        padding: 10px;
+        width: 100%;
+        max-width: 400px;
+        font-size: 16px;
+        margin: 15px 0 0 0;
+        anchor-name: --schoolSearch;
+      }
+
+      #schoolSearchSelection {
+        display: none;
+        border: 1px solid;
+        border-top: none;
+        position: absolute;
+        position-anchor: --schoolSearch;
+        width: anchor-size();
+        top: anchor(bottom);
+        left: anchor(left);
+        z-index: 9999;
+      }
+
+      #schoolSearchSelection a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        background-color: white
+      }
+
+      #schoolSearchSelection a:hover {background-color: #f1f1f1}
+
+      #downloadPDF {
+        display: inline-block;
+        padding: 10px 15px;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+        cursor: pointer;
+        background-color: #FDBA12;
+        border: none;
+        color: #fff; /* ← change this to white */
+        font-weight: bold;
+      }
+
+      #heats-for-school {
+        display: none;
+      }
+
+      .teams {
+        display: grid;
+        gap: 15px;
+      }
+
+      .heat {
+        background-color: azure;
+      }
+
+      .current-team {
+        font-weight: bold;
+        background-color: #a1e1a1;
+      }
+
+      .card {
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 15px;
+        background: #fafafa;
+      }
+
+      .card h3 {
+        margin: 0 0 8px 0;
+      }
+
+      .meta {
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .venue a {
+        text-decoration: underline;
+      }
+
+      .heat table {
+        background-color: #ddd;
+      }
+
+      h3, h4, h5 {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+      }
+
+      </style>
+
+      <script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+      <script>
+
+/*
+ * Search Prdicates
+ */
+
+class FindBy {
+  static Id = (o, id) => o.id == id;
+  static SchoolId = (o, id) => o.schoolId == id;
+  static SchoolName = (school, value) => school && school.schoolName.toLowerCase().includes(value);
+}
+
+/**
+ * Sort Prdicates
+ */
+class SortBy {
+  static Name = (a,b) => a.name.localeCompare(b.name);
+  static Division = (a,b) => -a.division.localeCompare(b.division);
+  static Date = (a,b) => new Date(a.date) - new Date(b.date);
+}
+
+/**
+ * Global elements
+ */
+
+class ElementNames {
+  static School = {
+    Search: "schoolSearch",
+    SearchSelection: "schoolSearchSelection",
+    Heats: "heats-for-school",
+    PdfButton: "downloadPDF"
+  };
+};
+
+class Elements {
+  static School = {
+    Search: document.getElementById(ElementNames.School.Search), 
+    SearchSelection: document.getElementById(ElementNames.School.SearchSelection), 
+    Heats: document.getElementById(ElementNames.School.Heats)
+  };
+}
+
+Object.defineProperty(Elements.School, "SearchItems", {
+  get () {
+    return document.querySelectorAll(`#${ElementNames.School.SearchSelection} a`);
+  },
+  enumerable: true,
+  configurable: false
+}); 
+
+Object.defineProperty(Elements.School, "PdfButton", {
+  get () {
+    return document.querySelectorAll(`#${ElementNames.School.PdfButton} a`);
+  },
+  enumerable: true,
+  configurable: false
+}); 
+
+class TemplateFields {
+  static School = {
+    Name: "{school-name}",
+  };
+  static Team = {
+    Id: "{team-id}",
+    Name: "{team-name}",
+    Division: "{team-division}",
+    Heats: "{team-heats}",
+    Current: "{team-current-class}"
+  };
+  static Heat = {
+    Id: "{heat-id}",
+    Date: "{heat-date}",
+    Venue: {
+      Name: "{heat-venue-name}",
+      LocationUrl: "{heat-venue-location-url}",
+      Address: "{heat-venue-address}"
+    },
+    Teams: "{heat-teams}"
+  };
+}
+
+class Templates {
+  static School = `
+    <h3>${TemplateFields.School.Name}</h3>
+    <div class="teams">
+      ${TemplateFields.Team.Heats}
+    <div>
+  `.trim();
+  static Team = `
+    <div class="team card" data-teamid="${TemplateFields.Team.Id}">
+      <div class="meta"><strong>${TemplateFields.Team.Division}</strong> - ${TemplateFields.Team.Name}</div>
+      <h4>Heats</h4>
+      ${TemplateFields.Team.Heats}
+    </div>`.trim();
+  static Heats = `
+    <div class="heat">
+      <div class="meta">📅 ${TemplateFields.Heat.Date}</div>
+      <div class="meta">Heat: ${TemplateFields.Heat.Id}</div>
+      <div class="meta venue">Location: <a href="${TemplateFields.Heat.Venue.LocationUrl}" target="_blank">${TemplateFields.Heat.Venue.Name}</a></div>
+      <div class="meta">Address: ${TemplateFields.Heat.Venue.Address}</div>
+      <h5>Teams</h5>
+      <table>
+        <thead></thead>
+        <tbody>
+          ${TemplateFields.Heat.Teams}
+        </tbody>
+      </table>
+    </div>`.trim();
+  static HeatTeams = `
+    <tr class="${TemplateFields.Team.Current}"><td>${TemplateFields.School.Name}</td><td>${TemplateFields.Team.Name}</td></tr>`.trim()
+}
+
+/*
+ *Formating
+ */
+
+class DateFormat {
+  static Locality =  'en-AU';
+  static Options = {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: "Australia/Brisbane"
+  }
+};
+const dateFormater = new Intl.DateTimeFormat(DateFormat.Locality,DateFormat.Options);
+
+/*
+ * Manage element visablity
+ */
+
+function clearSchoolSearchSelection() {
+  Elements.School.SearchSelection.innerHTML = ""; 
+}
+
+function hideSchoolSearchSelection() { 
+  Elements.School.SearchSelection.style.display = "none"; 
+}
+
+function showSchoolSearchSelection() { 
+  Elements.School.SearchSelection.style.display = "block";
+}
+
+/*
+ * Render elements
+ */
+
+function reduceHeatTeams(html, team, teamId) {
+  const rowClass =  team.teamId === teamId ? "current-team" : "";
+
+  html += Templates.HeatTeams
+                   .replace(TemplateFields.School.Name, team.school)
+                   .replace(TemplateFields.Team.Name, team.team)
+                   .replace(TemplateFields.Team.Current, rowClass);
+  return html;
+}
+
+function reduceTeamHeats(html, heat, teamId) {
+  const heatTeamsHtml = heat.teams.reduce((teamHtml, team) => reduceHeatTeams(teamHtml, team, teamId), "");
+
+  html += Templates.Heats
+                   .replace(TemplateFields.Heat.Date, `${dateFormater.format(new Date(heat.date))}`)
+                   .replace(TemplateFields.Heat.Id, heat.id)
+                   .replace(TemplateFields.Heat.Venue.Name, heat.venue.name)
+                   .replace(TemplateFields.Heat.Venue.LocationUrl, heat.venue.locationLink)
+                   .replace(TemplateFields.Heat.Venue.Address, heat.venue.address)
+                   .replace(TemplateFields.Heat.Teams, heatTeamsHtml);
+
+  return html;
+}
+
+function reduceTeam(html, team) {
+
+  const heatsHtml = team.heats.reduce((heatHtml, heat) => reduceTeamHeats(heatHtml, heat, team.id), "");
+
+  html += Templates.Team
+                    .replace(TemplateFields.Team.Id, team.id)
+                    .replace(TemplateFields.Team.Division, team.division)
+                    .replace(TemplateFields.Team.Name, team.name)
+                    .replace(TemplateFields.Team.Heats, heatsHtml);
+  return html;
+}
+
+function renderSchoolTemaplate(school){
+  Elements.School.Search.value = school.schoolName;
+
+  const teamsHeatsHtml = school.teams.reduce(reduceTeam, "");
+
+  var schoolHtml = Templates.School
+                            .replace(TemplateFields.School.Name, school.schoolName)
+                            .replace(TemplateFields.Team.Heats, teamsHeatsHtml);
+
+  return schoolHtml;
+}
+
+function displaySchoolOptions(schools) {
+  clearSchoolSearchSelection();
+
+  if(!schools?.length) {
+    Elements.School.SearchSelection.innerHTML = "<a>No schools found</a>";
+    showSchoolSearchSelection();
+    return;
+  }
+
+  var schoolSelectionHtml = "";
+
+  schools.forEach(school => {
+    schoolSelectionHtml += `<a data-school="${btoa(JSON.stringify(school))}">${school.schoolName}</a>`;
+  });
+  Elements.School.SearchSelection.innerHTML = schoolSelectionHtml;
+  Elements.School.SearchItems.forEach(item => item.addEventListener("mousedown", onSchoolSelected));
+  showSchoolSearchSelection();
+}
+
+/*
+ * Event Hadnlers
+ */
+
+function onSearchKeyUp(element, schools) {
+  const value = element.value.trim().toLowerCase();
+
+  if(!value || value === ""){
+    hideSchoolSearchSelection();
+    return;
+  }
+
+  const filtered = schools.filter(school => FindBy.SchoolName(school, value));
+
+  displaySchoolOptions(filtered);
+}
+
+function onSchoolSelected(event) {
+  hideSchoolSearchSelection();
+  const school = JSON.parse(atob(event.target.dataset.school));
+
+  var schoolHtml = renderSchoolTemaplate(school);
+
+  Elements.School.Heats.innerHTML = `<button id="downloadPDF">Download Your Schedule (PDF)</button>
+  ${schoolHtml}`;
+
+  document.getElementById("downloadPDF").addEventListener("click", () => onDownloadPdfFileClick(school));
+
+  Elements.School.Heats.style.display = "grid";
+}
+
+function onDownloadPdfFileClick(school) {
+  const { jsPDF } = window.jspdf;
+
+  const pdf = {
+    doc: new jsPDF(),
+    pos: {
+      margin: 10,
+      x: 10,
+      y: 10,
+      lineHeight: 10,
+      nextLine: function() { 
+        this.x = this.margin;
+        this.y += this.lineHeight;
+      }
+    },
+    colorChannel: [0, 0, 0],
+    rgbStringToChannels: function(rgbString){
+      if(!rgbString) return [0, 0, 0];
+
+      const rgbPattern = /^\s*#\d{6}\s*$/g
+      if(!rgbPattern.test(rgbString)) return [0, 0, 0];
+      
+      return [
+        parseInt(`${rgbString[1]}${rgbString[2]}`),
+        parseInt(`${rgbString[3]}${rgbString[4]}`),
+        parseInt(`${rgbString[5]}${rgbString[6]}`)
+      ];
+
+    },
+    currentColorRGB: function() {
+      return this.rgbStringToChannels(this.doc.getTextColor());
+    },
+    setLinkColour: function () { this.doc.setTextColor(0, 102, 204); },
+    setDefaultTextColour: function () { this.doc.setTextColor(this.colorChannel[0], this.colorChannel[1], this.colorChannel[2]); },
+    setTitleTextSize: function () {
+      this.doc.setFontSize(16);
+      this.pos.lineHeight = 10;
+     },
+    setDefaultTextSize: function () {
+      this.doc.setFontSize(12);
+      this.pos.lineHeight = 6;
+    },
+    setTitleStyle: function() {
+      pdf.setTitleTextSize();
+      pdf.setDefaultTextColour();
+    },
+    setDefulatStyle: function() {
+      pdf.setDefaultTextSize();
+      pdf.setDefaultTextColour();
+    },
+    writeLine: function (text) {
+      this.doc.text(text, this.pos.x, this.pos.y);
+      this.pos.nextLine();
+    },
+    writeLinkLine: function (text, url) {
+      const currentColour = this.currentColorRGB();
+      this.setLinkColour();
+      this.doc.textWithLink(text, this.pos.x, this.pos.y, { url: url });
+      const textWidth = this.doc.getTextWidth(text);
+      this.doc.line(this.pos.x, this.pos.y + 1, this.pos.x + textWidth, this.pos.y + 1);
+      this.doc.setTextColor(currentColour[0], currentColour[1], currentColour[2]);
+      this.setDefaultTextColour();
+      this.pos.nextLine();
+    },
+    endSection: function () {
+      this.pos.y += 4;
+
+      if (this.pos.y > 270) {
+        this.doc.addPage();
+        this.pos.y = 10;
+      }
+    },
+    save: function(fileName) {
+      this.doc.save(fileName);
+    }
+  }
+
+  pdf.setTitleStyle();
+  pdf.writeLine("Theatresports Schedule");
+  pdf.writeLine(school.schoolName);
+  pdf.setDefulatStyle();
+  
+  school.teams.forEach(team => {
+
+    pdf.writeLine(`${team.division} – ${team.name}`);
+
+    team.heats.forEach(heat =>{
+
+      pdf.writeLine(`Heat: ${heat.id}`);
+      pdf.writeLine(`Date: ${dateFormater.format(heat.date)}`);
+      pdf.writeLine(`Venue: ${heat.venue.name}`);
+      pdf.writeLine(`Address: ${heat.venue.address || ""}`);
+
+      if(heat.venue.locationLink) {
+        pdf.writeLinkLine("Open Venue Map", heat.venue.locationLink);
+      }
+
+      pdf.endSection();
+    });
+  });
+
+  pdf.save("theatresports-schedule.pdf");
+};
+
+function onError(error){
+  console.error("Error loading heats data: ", error);
+}
+
+/*
+ * Data mapping and setup
+ */
+
+const mapResponseTextToJSON = response => response.json();
+
+const mapToHeatsModel = heatsJson => {
+  const heatsData = heatsJson.Heats.sort(SortBy.Date)
+                                   .map(h => {
+                                     const venue = heatsJson.Venues.find(v => FindBy.Id(v, h.venueId));
+                                     const mc = heatsJson.Venues.find(v => FindBy.Id(v, h.mcId));
+                                     const heatDate = new Date(`${h.date}`);
+                                     const heatTeams = h.teams.map(id => {
+                                     const heatTeam = heatsJson.Teams.find(t => FindBy.Id(t, id));
+                                     const teamSchool = heatsJson.Schools.find(s => FindBy.Id(s, heatTeam.schoolId));
+
+                                     return {
+                                         schoolId: heatTeam.schoolId,
+                                         school: teamSchool.name,
+                                         teamId: heatTeam.id,
+                                         team: heatTeam.name,
+                                         division: heatTeam.division
+                                       };
+                                     });
+
+                                     return {
+                                       id: h.id,
+                                       division: h.division,
+                                       venue: {name: venue.name, address: venue.address, locationLink: venue.locationLink},
+                                       mc: mc.name,
+                                       date: heatDate,
+                                       teams: heatTeams
+                                     };
+                                   });
+    const schools = heatsJson.Schools.map((school) => {
+      const schoolTeams = heatsJson.Teams
+                                   .filter(t => FindBy.SchoolId(t, school.id))
+                                   .sort(SortBy.Name)
+                                   .sort(SortBy.Division)
+                                   .map(t => {
+                                    const teamId = t.id;
+                                    const heats = heatsData.filter(h => h.teams.some(ht => ht.teamId == t.id));
+
+                                    return {
+                                      id: t.id,
+                                      name: t.name,
+                                      division: t.division,
+                                      heats: heats
+                                    }
+                                   });
+
+      return {
+        schoolId: school.id,
+        schoolName: school.name,
+        teams: schoolTeams
+      }
+    });
+
+    return schools;
+};
+
+const hookUpEvents = schools => {
+  Elements.School.Search.addEventListener("keyup", e => onSearchKeyUp(e?.target, schools));
+};
+
+/*
+ * Run
+ */
+
+function run(){
+  const heatsDataUrl = "./Heats.json"
+
+  fetch(heatsDataUrl)
+    .then(mapResponseTextToJSON)
+    .then(mapToHeatsModel)
+    .then(hookUpEvents)
+    .catch(onError);
+}
+
+run();
+
+      </script>
+  
+    </div>
+  </div>
+</body>
+
+</html>
