@@ -138,6 +138,10 @@ section {
   background-color: var(--group-background-colour);
 }
 
+section.show {
+  display: block;
+}
+
 section h2 {
   margin-top: 0;
 }
@@ -213,6 +217,7 @@ details div {
       <div id="page-container">
         <section data-section="schools">
           <h2>Schools</h2>
+          <div id=""></div>
         </section>
         <section data-section="venues">
           <h2>Venues</h2>
@@ -584,9 +589,9 @@ details div {
       Elements.Section.All
               .forEach(s => {
                 if(s.dataset.section == sectionName) {
-                  s.style.display = "block";
+                  s.classList.add("show");
                 } else {
-                  s.style.display = "none";
+                  s.classList.remove("show");
                 }
               });
 
