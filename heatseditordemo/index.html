@@ -1,6 +1,10 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet"
+        href="https://use.fontawesome.com/releases/v5.14.0/css/all.css"
+        integrity="sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc"
+        crossorigin="anonymous">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
   <style id="header-navbar-style">
 
@@ -12,6 +16,23 @@
 
   --group-background-colour: hsl(217deg 19% 20% / 50%);
 
+  --backdrop-gradient: linear-gradient(to top,
+    hsl(217deg 19% 20%), 
+    hsl(221deg 39% 19%), 
+    hsl(0deg 0% 0%)); 
+
+  --warning-gradient: linear-gradient(to top,
+    hsl(55deg, 97, 88), 
+    hsl(50deg 98% 64%), 
+    hsl(45deg 93% 78%));
+
+  --border-radius-defualt: 0.5rem;
+
+}
+
+::backdrop {
+  background-image: var(--backdrop-gradient);
+  opacity: 0.75;
 }
 
 html {
@@ -28,6 +49,57 @@ body {
   background-image: var(--body-gradient);
 }
 
+#warning-dialog {
+  background-image: var(--warning-gradient);
+  border-radius: var(--border-radius-defualt);
+  font-size: 1rem;
+}
+
+#warning-dialoge-message-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  justify-content: center;
+}
+
+#warning-dialog-icon,
+#warning-dialog-message {
+  display: inline-block;
+  align-self: center;
+}
+
+#warning-dialog-icon {
+  font-size: 3rem;
+  color: hsl(50deg 98% 45%);
+}
+
+#warning-dialog-responses {
+  margin-block-start: 2rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1rem;
+}
+
+#warning-dialog-responses button {
+  padding-block: 0.5rem;
+  padding-inline: 0.5rem;
+  font-weight: bold;
+  color: hsl(55deg, 97, 88);
+  background-color: hsl(50deg 98% 64%);
+  border-radius: var(--border-radius-defualt);
+  border: none;
+  transition: color 0.2s ease-in-out;
+  transition: background-color 0.1s ease-in-out;
+}
+
+#warning-dialog-responses button:hover,
+#warning-dialog-responses button:focus {
+  outline: none; 
+  color: hsl(55deg, 97, 68);
+  background-color: hsl(50deg 98% 50%);
+}
+
 .header {
   display: flex;
   gap: 2rem;
@@ -37,7 +109,7 @@ body {
   padding-block: 0.8rem;
   padding-inline: 1rem;
   margin: 1.5rem 1rem;
-  border-radius: 0.5rem;
+  border-radius: var(--border-radius-defualt);
   background-color: var(--group-background-colour);
 }
 
@@ -63,34 +135,51 @@ body {
 }
 
 .header-link,
-.menu-link {
+.menu-link,
+.command-button {
   display: block;
-  padding-inline: 1rem;
   padding-block: 0.5rem;
   color: hsl(210deg 14%  53% / 70%);
   text-decoration: none;
-  border-radius: 0.5rem;
+  border-radius: var(--border-radius-defualt);
   transition: color 0.2s ease-in-out;
   transition: background-color 0.1s ease-in-out;
 }
+
+.header-link,
+.menu-link {
+  padding-inline: 1rem;
+}
+
+.command-button {
+  padding-inline: 0.2rem;
+}
+
 
 .header-link {
   margin-left: -0.5rem;
 } 
 
 .menu-link {
-  text-align: center;
+  text-align: left;
+}
+
+.header-link:hover,
+.menu-link:hover,
+.menu-link.selected,
+.command-button:hover {
+  color: hsl(210deg 14% 70% / 90%);
 }
 
 .header-link:hover,
 .menu-link:hover,
 .menu-link.selected {
-  color: hsl(210deg 14% 70% / 90%);
   background-color: hsl(217deg 19% 20% / 70%);
 }
 
 .header-link:hover,
-.menu-link:hover {
+.menu-link:hover,
+.command-button:hover {
   cursor: pointer;
 }
 
@@ -113,7 +202,7 @@ menu {
   padding-block: 0.8rem;
   padding-inline: 1rem;
   margin: 0;
-  border-radius: 0.5rem;
+  border-radius: var(--border-radius-defualt);
   background-color: var(--group-background-colour);
 }
 
@@ -134,7 +223,7 @@ section {
   display: none;
   padding-block: 0.8rem;
   padding-inline: 1rem;
-  border-radius: 0.5rem;
+  border-radius: var(--border-radius-defualt);
   background-color: var(--group-background-colour);
 }
 
@@ -144,6 +233,55 @@ section.show {
 
 section h2 {
   margin-top: 0;
+}
+
+.editor {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
+/* 
+a.new-school{
+
+}
+a.new-school:hover {
+  
+} */
+
+.table-header-group {
+  display: table-header-group;
+  font-weight: bold;
+}
+
+.table-row-group {
+    display: table-row-group;
+}
+
+.table-row {
+  display: table-row;
+}
+
+.tabel-header-cell,
+.tabel-cell {
+  display: table-cell;
+  padding-block: 0.2rem;
+  padding-inline: 0.2rem;
+  padding-inline-start: 0.3rem;
+}
+
+.tabel-cell {
+  vertical-align: middle;
+}
+
+.tabel-cell.commands {
+  width: 1px;
+  padding-inline: 0;
+}
+
+.header-link:has(i),
+.menu-link:has(i),
+a:has(i) {
+  padding-block: 0.7rem;
 }
 
 @media screen and (max-width: 768px) {
@@ -196,28 +334,61 @@ details div {
       </h1>
       <nav class="header-nav">
         <ul class="header-list">
-          <li><a class="header-link" id="previous" href="../index.html">&lt;&lt;&nbsp;Prev</a></li>
-          <li><a class="header-link" id="save" target="_blank" onclick="onSaveButtonClick()">Save</a></li>
+          <li>
+            <a class="header-link"
+               id="previous"
+               title="Return to demo main menu"
+               href="../index.html">
+               <i class="fas fa-angle-double-left"></i>
+            </a>
+          </li>
+          <li>
+            <a class="header-link"
+               id="save"
+               title="Save data to browser local storage"
+               target="_blank"
+               onclick="onSaveButtonClick()">
+              <i class="fas fa-save"></i>
+            </a>
+          </li>
           <li><a class="header-link" id="load-json" target="_blank" onclick="onLoadJsonClick()">Load&nbsp;JSON<input type="file" id="json-upload" accept=".json" class="upload"></input></a></li>
           <li><a class="header-link" id="load-csv" target="_blank" onclick="onLoadCsvClick()">Load&nbsp;CSV<input type="file" id="csv-upload" accept=".csv" class="upload"></input></a></li>
-          <li><a class="header-link" id="download" target="_blank" onclick="onDownloadClick()">Download</a></li>
+          <li><a class="header-link" id="download" title="Download as JSON" target="_blank" onclick="onDownloadClick()"><i class="fas fa-cloud-download-alt"></i></a></li>
         </ul>
       </nav>
     </header>
     <div id="content-container">
       <menu id="editor-menu">
         <ul>
-          <li><a class="menu-link" data-section="schools" target="_blank">Schools</a></li>
-          <li><a class="menu-link" data-section="venues" target="_blank">Venues</a></li>
-          <li><a class="menu-link" data-section="mcs" target="_blank">MCs</a></li>
-          <li><a class="menu-link" data-section="heats" target="_blank">Heats</a></li>
+          <li><a class="menu-link" data-section="schools" target="_blank"><i class="fas fa-school"></i> Schools  (<span id="school-count">0</span>)</a></li>
+          <li><a class="menu-link" data-section="venues" target="_blank"><i class="fas fa-map-marker-alt"></i> Venues (<span id="venue-count">0</span>)</a></li>
+          <li><a class="menu-link" data-section="mcs" target="_blank"><i class="fas fa-user"></i> MCs (<span id="mc-count">0</span>)</a></li>
+          <li><a class="menu-link" data-section="heats" target="_blank"><i class="fas fa-calendar-alt"></i> Heats (<span id="heat-count">0</span>)</a></li>
           <li><a class="menu-link" data-section="all" target="_blank">All</a></li>
         </ul>
       </menu>
       <div id="page-container">
         <section data-section="schools">
           <h2>Schools</h2>
-          <div id=""></div>
+          <div id="schools-editor">
+            <div class="editor">
+              <div class="table-header-group">
+                <div class="table-row">
+                  <div class="tabel-cell commands"></div>
+                  <div class="tabel-cell commands">
+                    <a id="new-school" 
+                       class="command-button" 
+                       title="Add New School"
+                       onclick="onNewSchoolClick()">
+                       <i class="fas fa-plus"></i>
+                    </a>
+                  </div>
+                  <div class="tabel-cell">Name</div>
+                </div>
+              </div>
+            <div class="table-row-group"></div>
+            </div>
+          </div>
         </section>
         <section data-section="venues">
           <h2>Venues</h2>
@@ -231,7 +402,7 @@ details div {
         <section data-section="all">
           <h2>All</h2>
           <details id="schools">
-            <summary><span>Schools</span> (<span id="school-count">0</span>)</summary>
+            <summary><span>Schools</span></summary>
             <div>
               <table>
                 <thead><tr><th>Name</th></tr></thead>
@@ -249,7 +420,7 @@ details div {
             </div>
           </details>
           <details id="venues">
-            <summary><span>Venues</span> (<span id="venue-count">0</span>)</summary>
+            <summary><span>Venues</span></summary>
             <div>
               <table>
                 <thead><tr><th>Name</th><th>Address</th><th>Location Link</th></tr></thead>
@@ -258,7 +429,7 @@ details div {
             </div>
           </details>
           <details id="mcs">
-            <summary><span>MCs</span> (<span id="mc-count">0</span>)</summary>
+            <summary><span>MCs</span></summary>
             <div>
               <table>
                 <thead><tr><th>Name</th></tr></thead>
@@ -267,7 +438,7 @@ details div {
             </div>
           </details>
           <details id="heats">
-            <summary><span>Heats</span> (<span id="heat-count">0</span>)</summary>
+            <summary><span>Heats</span></summary>
             <div>
               <table>
                 <thead><tr><th>ID</th><th>Division</th><th>Date</th><th>Venue</th><th>MC</th></tr></thead>
@@ -281,70 +452,105 @@ details div {
     </div>
   </div>
 
+  <dialog id="warning-dialog">
+    <div id="warning-dialoge-message-container">
+      <div id="warning-dialog-icon"><i class="fas fa-exclamation-triangle"></i></div>
+      <div id="warning-dialog-message"></div>
+    </div>
+    <div id="warning-dialog-responses">
+      <button id="warning-dialog-confirm" autofocus>YES</button>
+      <button id="warning-dialog-cancel" autofocus>CANCEL</button>
+    </div>
+  </dialog>
+
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js" crossorigin="anonymous"></script>
   <script id="editor-scripts">
 
-    class DateFormat {
-      static Locality =  'en-AU';
-      static Options = {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        timeZone: "Australia/Brisbane"
-      }
-    };
-    const dateFormater = new Intl.DateTimeFormat(DateFormat.Locality,DateFormat.Options);
-
-    class StorageKeys {
-      static Heat = {
-        Data: "heats-data"
-      }
-    }
-
     class Elements {
+      static #names = {
+        Dialog: {
+          Warning: "warning-dialog",
+          Message: "warning-dialog-message",
+          Confirm: "warning-dialog-confirm",
+          Cancel: "warning-dialog-cancel"
+        },
+        Upload: {
+          JSON: "json-upload",
+          Csv: "csv-upload"
+        },
+        Menu: {
+          Links: ".menu-link"
+        },
+        Section: "section",  
+        School: {
+          Count: "school-count",
+          All: "schools",
+          Editor: "schools-editor",
+        },
+        Team: {
+          All: "teams",
+          Count: "team-count"
+        },
+        Venue: {
+          All: "venues",
+          Count: "venue-count"
+        },
+        MC: {
+          All: "mcs",
+          Count: "mc-count"
+        },
+        Heat: {
+          All: "heats",
+          Count: "heat-count"
+        }
+      };
+
+      static #childTableBody = (elementName) => document.querySelectorAll(`#${elementName} table tbody`)[0];
+      static #childEditorBody(elementName) { return document.querySelectorAll(`#${elementName} .table-row-group`)[0]};
+
+      static Dialog = {
+        Warning: document.getElementById(this.#names.Dialog.Warning),
+        Message: document.getElementById(this.#names.Dialog.Message),
+        Confirm: document.getElementById("warning-dialog-confirm"),
+        Cancel: document.getElementById("warning-dialog-cancel")
+
+      };
       static Upload = {
-        JSON: document.getElementById("json-upload"),
-        Csv: document.getElementById("csv-upload"),
+        JSON: document.getElementById(this.#names.Upload.JSON),
+        Csv: document.getElementById(this.#names.Upload.Csv),
       };
       static Menu = {
-        Links: document.querySelectorAll(".menu-link")
+        Links: document.querySelectorAll(this.#names.Menu.Links)
       };
       static Section = {
-        All: document.querySelectorAll("section")
+        All: document.querySelectorAll(this.#names.Section)
       }
-      static Schools = {
-        Count: document.getElementById("school-count"),
-        TableBody: document.querySelectorAll("#schools table tbody")[0]
+      static School = {
+        Count: document.getElementById(this.#names.School.Count),
+        TableBody: this.#childTableBody(this.#names.School.All),
+        Editor: {
+          Section: document.getElementById(this.#names.School.Editor),
+          TableBody: this.#childEditorBody(this.#names.School.Editor),
+          Rows: () => this.School.Editor.TableBody.querySelectorAll(".table-row"),
+          ItemById: (id) => this.School.Editor.TableBody.querySelector(`[data-schoolid="${id}"]`)
+        }
       };
-      static Teams = {
-        Count: document.getElementById("team-count"),
-        TableBody: document.querySelectorAll("#teams table tbody")[0]
+      static Team = {
+        Count: document.getElementById(this.#names.Team.Count),
+        TableBody: this.#childTableBody(this.#names.Team.All)
       };
-      static Venues = {
-        Count: document.getElementById("venue-count"),
-        TableBody: document.querySelectorAll("#venues table tbody")[0]
+      static Venue = {
+        Count: document.getElementById(this.#names.Venue.Count),
+        TableBody: this.#childTableBody(this.#names.Venue.All)
       };
-      static MCs = {
-        Count: document.getElementById("mc-count"),
-        TableBody: document.querySelectorAll("#mcs table tbody")[0]
+      static MC = {
+        Count: document.getElementById(this.#names.MC.Count),
+        TableBody: this.#childTableBody(this.#names.MC.All)
       };
-      static Heats = {
-        Count: document.getElementById("heat-count"),
-        TableBody: document.querySelectorAll("#heats table tbody")[0]
+      static Heat = {
+        Count: document.getElementById(this.#names.Heat.Count),
+        TableBody: this.#childTableBody(this.#names.Heat.All)
       };
-    }
-
-    class FindBy {
-      static Id = (o, id) => o.id == id;
-      static SchoolId = (o, id) => o.schoolId == id;
-      static SchoolName = (school, value) => school && school.schoolName.toLowerCase().includes(value);
-    }
-
-    class SortBy {
-      static Name = (a,b) => a.name.localeCompare(b.name);
-      static Division = (a,b) => -a.division.localeCompare(b.division);
-      static Date = (a,b) => new Date(a.date) - new Date(b.date);
     }
 
     class PopupMessage {
@@ -357,7 +563,7 @@ details div {
         stopOnFocus: true,
         close: true
       };
-      static Show = function(text) {
+      static Show = (text) => {
         Toastify({ 
           ...this.#options, 
           text: text,
@@ -365,163 +571,492 @@ details div {
         }).showToast();
       }
 
-      static ShowError = function(text) {
+      static ShowError = (text) => {
         Toastify({ 
           ...this.#options, 
           text: text,
           style: { background: this.#errorColour }
         }).showToast();
       };
+
+      static FeatureNotImplemented = (featureName) => this.ShowError(`The ${ !featureName ? "" : `${featureName}`} feature is not implemented yet`);
+
+      static WarningDialog = class {
+        static confirmButtonHandler = undefined;
+        static cancelButtonHandler = undefined;
+        static Show = (message, confirmHandler, cancelHandler) => {
+          if(!message) message = "Warning!";
+          Elements.Dialog.Message.innerHTML = message;
+
+          if(this.confirmButtonHandler) {
+            Elements.Dialog.Confirm.removeEventListener("click", this.confirmButtonHandler)
+          }
+
+          if(this.cancelButtonHandler) {
+            Elements.Dialog.Cancel.removeEventListener("click", this.cancelButtonHandler)
+          }
+
+          this.confirmButtonHandler = () => {
+            if(confirmHandler)
+              confirmHandler();
+              Elements.Dialog.Warning.close();
+          };
+
+          this.cancelButtonHandler = () => {
+            if(cancelHandler)
+              cancelHandler();
+              Elements.Dialog.Warning.close();
+          };
+
+          Elements.Dialog.Confirm.addEventListener("click", this.confirmButtonHandler)
+
+          Elements.Dialog.Cancel.addEventListener("click", this.cancelButtonHandler)
+
+          Elements.Dialog.Warning.showModal();
+        };
+      }
+
     }
 
-    class Download {
-      static #defaultFilename = "Heats.json";
-      static fromJSON = function(data, fileName) {
-        const fileType = "application/json"
+    class Data {
+      static #heats = null;
 
-        const blob = new Blob([JSON.stringify(data)], { type: fileType });
-        const url = URL.createObjectURL(blob);
+      static #findBy = class  {
+        static Id = (o, id) => o.id == id;
+      }
 
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = fileName || this.#defaultFilename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      };
-    }
+      static #sortBy = class {
+        static Name = (a,b) => a.name.localeCompare(b.name);
+        static Division = (a,b) => -a.division.localeCompare(b.division);
+        static Date = (a,b) => new Date(a.date) - new Date(b.date);
+      }
 
-    const Data = {
-      heats: null
-    };
+      static Schools = {
+        All: () => this.#heats.Schools,
+        Find: (id) => this.#heats.Schools.find(school => this.#findBy.Id(school, id)),
+        Sorted: () => this.#heats.Schools.sort(this.#sortBy.Name),
+        Delete: (id) => {
+          const schoolIndex = this.#heats.Schools.findIndex(school => this.#findBy.Id(school, id));
+          if(schoolIndex < 0)
+            return false;
 
-    var heatsdata;
+          this.Teams.DeleteBySchoolId(id);
 
-    class Render {
-      static Reset = () => {
-        Elements.Schools.Count.innerHTML = 0;
-        Elements.Schools.TableBody.innerHTML = "";
+          this.#heats.Schools.splice(schoolIndex, 1);
+          return true;
+        }
+      }
 
-        Elements.Teams.Count.innerHTML = 0;
-        Elements.Teams.TableBody.innerHTML = "";
+      static Teams = {
+        All: () => this.#heats.Teams,
+        Find: (id) => this.#heats.Teams.find(team => this.#findBy.Id(team, id)),
+        Sorted: () => this.#heats.Teams
+                                 .sort(this.#sortBy.Name)
+                                 .sort(this.#sortBy.Division),
+        Delete: () => {},
+        DeleteBySchoolId: (id) => {
+          if(typeof id !== "number")
+            return false;
+          const teams = this.#heats.Teams.filter(team => team.schoolId == id);
 
-        Elements.Venues.Count.innerHTML = 0;
-        Elements.Venues.TableBody.innerHTML = "";
+          if(!teams.length)
+            return false;
 
-        Elements.MCs.Count.innerHTML = 0;
-        Elements.MCs.TableBody.innerHTML = "";
+          teams.forEach(team => this.Heats.DeleteTeamById(team.id));
 
-        Elements.Heats.Count.innerHTML = 0;
-        Elements.Heats.TableBody.innerHTML = "";
-      };
+          teams.map(team => this.#heats.Teams.findIndex(t => t.id === team.id))
+               .filter(index => index > -1)
+               .reverse()
+               .forEach(index => this.#heats.Teams.splice(index, 1));
+          return true;
+        }
+      }
 
-      static school = (html,school) => (html += `<tr data-id="${school.id}"><td>${school.name}</td></tr>`);
-
-      static team = (html,team) => {
-        const school = Data.heats.Schools.find(school => FindBy.Id(school, team.schoolId));
-        return (html += `<tr data-id="${team.id}"><td>${school.name}</td><td>${team.division}</td><td>${team.name}</td></tr>`);
-      };
-
-      static venue = (html,venue)  => {
-        return (html += `<tr data-id="${venue.id}"><td>${venue.name}</td><td>${venue.address}</td><td>${venue.locationLink}</td></tr>`);
-      };
-
-      static mc = (html,mc) => {
-        return (html += `<tr data-id="${mc.id}"><td>${mc.name}</td></tr>`)
-      };
-
-      static heat = (html,heat) => {
-        const venue = Data.heats.Venues.find(venue => FindBy.Id(venue, heat.venueId));
-        const mc = Data.heats.MCs.find(mc => FindBy.Id(mc, heat.mcId));
-        const heatDate = dateFormater.format(new Date(heat.date));
-        return (html += `<tr data-id="${heat.id}">
-          <td>${heat.id}</td>
-          <td>${heat.division}</td>
-          <td>${heatDate}</td>
-          <td>${venue.name}</td>
-          <td>${mc.name}</td>
-          </td>
-        </tr>`);
-      };
-    }
-
-    function getEmptySchoolsObject() {return [];}
-    function getEmptyTeamsObject() {return [];}
-    function getEmptyVenuesObject() {return [
-        {
-          "id": 0,
+      static Venues = {
+        All: () => this.#heats.Venues,
+        Find: (id) => this.#heats.Venues.find(venue => this.#findBy.Id(venue, id)) ?? this.Venues.Null,
+        Sorted: () => this.#heats.Venues.sort(this.#sortBy.Name),
+        Null: {
+          "id": -1,
           "name": "TBA",
           "address": "TBA",
           "locationLink": ""
         }
-      ];
-    }
-    function getEmptyMCsObject() {return [
-        {
-          "id": "0",
+      }
+
+      static MCs = {
+        All: () => this.#heats.MCs,
+        Find: (id) => this.#heats.MCs.find(mc => this.#findBy.Id(mc, id)) ?? this.MCs.Null,
+        Sorted: () => this.#heats.MCs.sort(this.#sortBy.Name),
+        Null: {
+          "id": -1,
           "name": "TBA"
         }
-      ];
-    }
-    function getEmptyHeatsObject() {return [];}
-
-    function getNewData() {
-      Data.heats = verifyHeatsData({});
-    }
-
-    function verifyHeatsData(data){
-      if(!data){
-        data = getNewData();
-        return;
       }
-      if(!data.Schools) data.Schools = getEmptySchoolsObject();
-      if(!data.Teams) data.Teams = getEmptyTeamsObject();
-      if(!data.Venues) data.Venues = getEmptyVenuesObject();
-      if(!data.MCs) data.MCs = getEmptyMCsObject();
-      if(!data.Heats) data.Heats = [];
 
-      return data;
-    }
+      static Heats = {
+        All: () => this.#heats.Heats,
+        Find: (id) => this.#heats.Heats.find(heat => this.#findBy.Id(heat, id)),
+        Sorted: () => this.#heats.Heats.sort(this.#sortBy.Date),
+        DeleteTeamById: (teamId) => {
+          this.#heats.Heats.filter(heat => heat.teams.includes(teamId))
+                           .forEach(heat => heat.teams.map(team => 
+                                                        heat.teams.findIndex(id => id === teamId))
+                                                      .filter(index => index > -1)
+                                                      .reverse()
+                                                      .forEach(index => 
+                                                        heat.teams.splice(index, 1)));
 
-    function loadheatsDataFromLocalStorage() {
-      dataString = window.localStorage.getItem(StorageKeys.Heat.Data);
-      Data.heats = JSON.parse(dataString);
-
-      verifyHeatsData(Data.heats);
-      renderHeatsData();
-    }
-
-    function saveDataheatsToLocalStorage() {
-      verifyHeatsData(Data.heats);
-
-      try {
-        localStorage.setItem(StorageKeys.Heat.Data, JSON.stringify(Data.heats))
-        PopupMessage.Show("Data saved to local storage");
-      } catch (error){
-        PopupMessage.ShowError(error);
+          return true;
+        }
       }
-    }
 
-    function downloadHeatData() {
-      verifyHeatsData(Data.heats);
-
-      try {
-        Download.fromJSON(Data.heats);
-      } catch (error) {
-        PopupMessage.ShowError(error);
+      static #Empty = class {
+        static getSchools() {return [];}
+        static getTeams() { return [];}
+        static getVenues() { return [];}
+        static getMCs() { return [];}
+        static getHeats() { return [];}
       }
+
+      static #localStorageKey = "heats-data";
+
+      static loadFromLocalStorage() {
+        const dataString = window.localStorage.getItem(this.#localStorageKey);
+        this.verify(JSON.parse(dataString));
+        Render.All();
+      }
+    
+      static saveTolocalStorage(){
+        this.verify();
+
+        try {
+          localStorage.setItem(this.#localStorageKey, JSON.stringify(this.#heats))
+          PopupMessage.Show("Data saved to local storage");
+        } catch (error){
+          PopupMessage.ShowError(error);
+        }
+      }
+      
+      static verify(newData) {
+        if(newData) this.#heats = newData;
+        if(!this.#heats){
+          this.#heats = this.reset();
+          return;
+        }
+        if(!this.#heats.Schools) this.#heats.Schools = this.#Empty.getSchools();
+        if(!this.#heats.Teams) this.#heats.Teams = this.#Empty.getTeams();
+        if(!this.#heats.Venues) this.#heats.Venues = this.#Empty.getVenues();
+        if(!this.#heats.MCs) this.#heats.MCs = this.#Empty.getMCs();
+        if(!this.#heats.Heats) this.#heats.Heats = this.#Empty.getHeats();
+
+        return this.#heats;
+      }
+
+      static reset() {
+        this.verify({});
+      }
+
+      static Download = class {
+        static #defaultFilename = "Heats.json";
+        static asJSON() {
+          try{
+            const fileType = "application/json"
+
+            const blob = new Blob([JSON.stringify(this.verify())], { type: fileType });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = this.#defaultFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+              
+          } catch (error) {
+            PopupMessage.ShowError(error);
+          }
+        };
+      }
+    };
+
+    class Render {
+      static #fields = {
+        School: {
+          Id: "{school-id}",
+          Name: "{school-name}"
+        },
+        Team: {
+          Id: "{team-id}",
+          Name: "{team-name}",
+          Division: "{team-division}"
+        },
+        Venue: {
+          Id: "{venue-id}",
+          Name: "{venue-name}",
+          Address: "{venue-address}",
+          Location: "{venue-location}"
+        },
+        MC: {
+          Id: "{mc-id}",
+          Name: "{mc-name}"
+        },
+        Heat: {
+          Id: "{heat-id}",
+          Division: "{heat-division}",
+          Date: "{heat-date}",
+        }
+      }
+      static #templates = {
+        School: {
+          Editor: `
+          <div class="table-row" data-schoolId="${Render.#fields.School.Id}">
+            <div class="tabel-cell commands">
+              <a class="command-button edit-school"
+                 title="Edit School">
+                <i class="fas fa-edit"></i>
+              </a>
+            </div>
+            <div class="tabel-cell commands">
+              <a class="command-button delete-school"
+                 title="Delete School">
+                <i class="far fa-trash-alt"></i>
+              </a>
+            </div>
+            <div class="tabel-cell" data-field="Name"
+                 data-value="${Render.#fields.School.Name}"
+                 onclick="onCellClick(event)">
+              ${Render.#fields.School.Name}
+            </div>
+          </div>`.trim(),
+          Row: `<tr data-id="${this.#fields.School.Id}"><td>${this.#fields.School.Name}</td></tr>`.trim()
+        },
+        Team: {
+          Row: `<tr data-id="${this.#fields.Team.Id}"><td>${this.#fields.School.Name}</td><td>${this.#fields.Team.Division}</td><td>${this.#fields.Team.Name}</td></tr>`.trim()
+        },
+        Venue: {
+          Row: `<tr data-id="${this.#fields.Venue.Id}"><td>${this.#fields.Venue.Name}</td><td>${this.#fields.Venue.Address}</td><td>${this.#fields.Venue.Location}</td></tr>`.trim()
+        },
+        MC: {
+          Row: `<tr data-id="${this.#fields.MC.Id}"><td>${this.#fields.MC.Name}</td></tr>`.trim()
+        },
+        Heat: {
+          Row: `
+            <tr data-id="${this.#fields.Heat.Id}">
+              <td>${this.#fields.Heat.Id}</td>
+              <td>${this.#fields.Heat.Division}</td>
+              <td>${this.#fields.Heat.Date}</td>
+              <td>${this.#fields.Venue.Name}</td>
+              <td>${this.#fields.MC.Name}</td>
+              </td>
+            </tr>`.trim()
+        }
+      }
+
+      static #resetSection(section){
+        section.Count.innerHTML = 0;
+        section.TableBody.innerHTML = "";
+        if(!section.Editor) return;
+        section.Editor.TableBody.innerHTML = "";
+      }
+
+      static Reset() {
+
+        Render.#resetSection(Elements.School);
+        Render.#resetSection(Elements.Team);
+        Render.#resetSection(Elements.Venue);
+        Render.#resetSection(Elements.MC);
+        Render.#resetSection(Elements.Heat);
+
+      };
+
+      static #dateFormater = class {
+        static #formatOpsion = {
+          Locality: 'en-AU',
+          Format: {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            timeZone: "Australia/Brisbane"
+          }
+        };
+        static #formater = new Intl.DateTimeFormat(this.#formatOpsion.Locality, this.#formatOpsion.Format);
+        static format(date) {
+          if(!(date instanceof Date)) date = new Date(date);
+          return this.#formater.format(date);
+        }
+      }
+
+      static #render = {
+        School: {
+          All: (html,school) => (html += this.#templates.School.Row
+                                             .replaceAll(this.#fields.School.Id, school.id)
+                                             .replaceAll(this.#fields.School.Name, school.name)),
+          Editor: (html,school) => html += this.#templates.School.Editor
+                                           .replaceAll(this.#fields.School.Id, school.id)
+                                           .replaceAll(this.#fields.School.Name, school.name),
+        },
+
+        Team: {
+          All: (html, team) =>{
+            const school = Data.Schools.Find(team.schoolId);
+            return (html += this.#templates.Team.Row
+                                           .replaceAll(this.#fields.Team.Id, team.id)
+                                           .replaceAll(this.#fields.School.Name, school.name)
+                                           .replaceAll(this.#fields.Team.Division, team.division)
+                                           .replaceAll(this.#fields.Team.Name, team.name));
+          }
+        },
+
+        Venue: {
+          All: (html, venue) => (html += this.#templates.Venue.Row
+                                                        .replaceAll(this.#fields.Venue.Id, venue.id)
+                                                        .replaceAll(this.#fields.Venue.Name, venue.name)
+                                                        .replaceAll(this.#fields.Venue.Address, venue.address)
+                                                        .replaceAll(this.#fields.Venue.Location, venue.locationLink))
+        },
+
+        MC: {
+          All: (html, mc) => (html += this.#templates.MC.Row
+                                                     .replaceAll(this.#fields.MC.Id, mc.id)
+                                                     .replaceAll(this.#fields.MC.Name, mc.name))
+        },
+
+        Heat: {
+          All: (html, heat) => {
+            const venue = Data.Venues.Find(heat.venueId);
+            const mc = Data.MCs.Find(heat.mcId);
+            const heatDate = this.#dateFormater.format(new Date(heat.date));
+            return (html += this.#templates.Heat.Row
+                                           .replaceAll(this.#fields.Heat.Id, heat.id)
+                                           .replaceAll(this.#fields.Heat.Division, heat.division)
+                                           .replaceAll(this.#fields.Heat.Date, heatDate)
+                                           .replaceAll(this.#fields.Venue.Name, venue.name)
+                                           .replaceAll(this.#fields.MC.Name, mc.name));
+          }
+        }
+      };
+
+      static #eventHandlers = {
+        School: {
+          DeleteClick: (event) => {
+            const row = event.target.closest(".table-row");
+            const schoolId = row?.dataset?.schoolid;
+            const school = Data.Schools.Find(schoolId);
+            PopupMessage.WarningDialog.Show(`
+            <strong>Are you sure you want to delete ${school.name}?</strong>
+            <div>All associated teams will also be deleted, and removed from heats</div>`,
+                                            () => this.#eventHandlers.School.ConfirmDelete(row, school),
+                                            this.#eventHandlers.School.CancelDelete)
+          },
+          ConfirmDelete: (row, school) => {
+            const schoolName = school.name;
+            const schoolId = school.id;
+            if(row.parentNode){
+              row.parentNode.removeChild(row);
+            }
+            if(Data.Schools.Delete(schoolId)) {
+              PopupMessage.Show(`${schoolName} was deleted from Schools`);
+              Render.Teams();
+              Render.Schools();
+              return;
+            }
+            PopupMessage.ShowError(`${schoolName} could not be deleted from Schools`);
+          },
+          CancelDelete: () => {
+            PopupMessage.Show("Cancelled: School not deleted.");
+          }
+        }
+
+      }
+
+      static Schools(){
+        if(!Data.Schools.All().length) {
+          Render.#resetSection(Elements.School)
+          return;
+        }
+
+        const schools = Data.Schools.Sorted()
+        Elements.School.Count.innerHTML = `${schools.length ?? 0}`;
+        Elements.School.TableBody.innerHTML = schools.reduce(this.#render.School.All, "");
+        Elements.School.Editor.TableBody.innerHTML = schools.reduce(this.#render.School.Editor, "");
+
+        Elements.School.Editor.Rows().forEach(row => {
+          const id = row.dataset.schoolid;
+          if(!id)
+            return;
+
+          const editButton = row.querySelector(".edit-school")
+          const deleteButton = row.querySelector(".delete-school")
+          editButton.addEventListener("click", (e) => PopupMessage.Show(`Edit School Id: ${id}`))
+          deleteButton.addEventListener("click", this.#eventHandlers.School.DeleteClick);
+        });
+      }
+
+      static Teams(){
+        if(!Data.Teams.All().length) {
+          Render.#resetSection(Elements.Team)
+          return;
+        }
+
+        const teams = Data.Teams.Sorted();
+        Elements.Team.Count.innerHTML = `${teams.length ?? 0}`;
+        Elements.Team.TableBody.innerHTML = teams.reduce(this.#render.Team.All, "");
+      }
+
+      static Venues() {
+        const venues = Data.Venues.Sorted();
+        Elements.Venue.Count.innerHTML = `${venues.length ?? 0}`;
+        Elements.Venue.TableBody.innerHTML = venues.reduce(this.#render.Venue.All, "");
+      }
+
+      static MCs() {
+        const mc = Data.MCs.Sorted();
+        Elements.MC.Count.innerHTML = `${mc.length ?? 0}`;
+        Elements.MC.TableBody.innerHTML = mc.reduce(this.#render.MC.All, "");
+      }
+
+      static Heats() {
+        const heat = Data.Heats.Sorted();
+        Elements.Heat.Count.innerHTML = `${heat.length ?? 0}`;
+        Elements.Heat.TableBody.innerHTML = heat.reduce(this.#render.Heat.All, "");
+      }
+
+      static All() {
+        if(!Data.verify()) {
+          this.Reset();
+          return;
+        }
+
+        this.Schools();
+        
+        this.Teams();
+
+        this.Venues();
+
+        this.MCs();
+
+        this.Heats();
+      }
+
     }
 
-    function featureNotImplemented(featureName){
-      PopupMessage.ShowError(`Th${ !featureName ? "e " : `is ${featureName}`} feature is not implemented yet`);
+    function editSchoolRow(){
+      
     }
-
 /*
  * Event Handlers
  */
 
+    function onCellClick(e) {
+      const fieldName = e.target.dataset.field;
+
+      PopupMessage.Show(`Field: ${fieldName}`);
+    }
+
     function onSaveButtonClick() {
-      saveDataheatsToLocalStorage();
+      Data.saveTolocalStorage();
     }
 
     function onLoadJsonClick() {
@@ -535,9 +1070,8 @@ details div {
 
         reader.onload = function(e){
           try {
-            Data.heats = verifyHeatsData(JSON.parse(e.target.result));
-            verifyHeatsData(Data.heats);
-            renderHeatsData();
+            Data.verify(JSON.parse(e.target.result));
+            Render.All();
             PopupMessage.Show(`File ${"file"} loaded successfully`);
           } catch (error){
             console.error("FileReader error:", e.target.error);
@@ -565,12 +1099,12 @@ details div {
     }
 
     function onCsvUploadChange(event) {
-      featureNotImplemented("CSV upload");
+      PopupMessage.FeatureNotImplemented("CSV upload");
       Elements.Upload.Csv.value = "";
     }
 
     function onDownloadClick() {
-      downloadHeatData();
+      Data.Download.asJSON();
     }
 
     function onMenuItemClick(e) {
@@ -584,7 +1118,7 @@ details div {
       
       menuItem.classList.add(className);
       [...Elements.Menu.Links].filter(l => l.dataset.section !== sectionName)
-                         .forEach(l => l.classList.remove(className));
+                              .forEach(l => l.classList.remove(className));
 
       Elements.Section.All
               .forEach(s => {
@@ -597,45 +1131,8 @@ details div {
 
     }
 
-
-    function filterOutTBA(item) {
-      return item.id > 0;
-    }
-
-    function renderHeatsData() {
-      if(!Data.heats) {
-        Render.Reset();
-        return;
-      }
-
-      Elements.Schools.Count.innerHTML = `${Data.heats.Schools?.length ?? 0}`;
-      Elements.Schools.TableBody.innerHTML = Data.heats.Schools
-                                                      .sort(SortBy.Name)
-                                                      .reduce(Render.school, "");
-
-
-      Elements.Teams.Count.innerHTML = `${Data.heats.Teams?.length ?? 0}`;
-      Elements.Teams.TableBody.innerHTML = Data.heats.Teams
-                                                    .sort(SortBy.Name)
-                                                    .sort(SortBy.Division)
-                                                    .reduce(Render.team, "");
-
-      Elements.Venues.Count.innerHTML = `${Data.heats.Venues.length - 1}`;
-      Elements.Venues.TableBody.innerHTML = Data.heats.Venues
-                                                     .filter(filterOutTBA)
-                                                     .sort(SortBy.Name)
-                                                     .reduce(Render.venue, "");
-
-      Elements.MCs.Count.innerHTML = `${Data.heats.MCs.length - 1}`;
-      Elements.MCs.TableBody.innerHTML = Data.heats.MCs
-                                                  .filter(filterOutTBA)
-                                                  .sort(SortBy.Name)
-                                                  .reduce(Render.mc, "");
-
-      Elements.Heats.Count.innerHTML = `${Data.heats.Heats?.length ?? 0}`;
-      Elements.Heats.TableBody.innerHTML = Data.heats.Heats
-                                                    .sort(SortBy.Date)
-                                                    .reduce(Render.heat, "");
+    function onNewSchoolClick() {
+      PopupMessage.FeatureNotImplemented();
     }
 
     function hookupGlobalEvents() {
@@ -645,7 +1142,7 @@ details div {
     }
 
     hookupGlobalEvents();
-    loadheatsDataFromLocalStorage();
+    Data.loadFromLocalStorage();
 
   </script>
 </body>
