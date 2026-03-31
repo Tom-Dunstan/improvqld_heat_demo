@@ -6,15 +6,25 @@
         integrity="sha384-HzLeBuhoNPvSl5KYnjx0BT+WB0QEEqLprO+NBkkk5gbc67FTaL7XIGa2w1L0Xbgc"
         crossorigin="anonymous">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-  <style id="header-navbar-style">
-
+  <style id="style-vars">
 :root {
+  --test-size: 1rem;
+
+  --media-mobile-width: 768px;
+
+  --text-colour-default: hsl(210deg 14% 53%);
+  --button-text-colour: hsl(210deg 14%  53% / 70%);
+  --button-text-hover-colour: hsl(210deg 14% 70% / 90%);
+
   --body-gradient: linear-gradient(to top,
     hsl(217deg 19% 27%), 
     hsl(221deg 39% 11%), 
     hsl(0deg 0% 0%));
 
   --group-background-colour: hsl(217deg 19% 20% / 50%);
+
+  --button-background-colour: hsl(217deg 19% 20% / 70%);
+  /* --button-background-hover-colour: hsl(217deg 19% 20% / 70%); */
 
   --backdrop-gradient: linear-gradient(to top,
     hsl(217deg 19% 20%), 
@@ -29,7 +39,8 @@
   --border-radius-defualt: 0.5rem;
 
 }
-
+  </style>
+  <style id="page-elements-style">
 ::backdrop {
   background-image: var(--backdrop-gradient);
   opacity: 0.75;
@@ -44,28 +55,151 @@ body {
   font-family: sans-serif;
   /* font-size: 1rem; */
   line-height: 1.5;
-  color: hsl(210deg 14% 53%);
+  color: var(--text-colour-default);
 
   background-image: var(--body-gradient);
 }
 
+@media screen and (max-width: 768px) {
+  html {
+    font-size: 130%;
+  }
+}
+
+  </style>
+  <style id="table-elements-style">
+div.table-row:has(.collapsible):after {
+  content: '\002B';
+  color: white;
+  font-weight: bold;
+  float: right;
+  margin-left: -1rem;
+}
+
+div.table-row:has(.collapsible):has(.active):after {
+  content: "\2212";
+}
+
+.collapsible {
+  cursor: pointer;
+}
+
+.collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+
+div.active .collapsible-content {
+  max-height: none;
+}
+
+div.table-row:has(.collapsible):has(.active),
+div.table-row:has(.collapsible:hover){
+  background-color: var(--button-background-colour);
+}
+
+.tabel-cell.commands {
+  vertical-align: top;
+}
+
+.table-row-group {
+  display: table-row-group;
+  row-gap: 0.5rem;
+}
+
+.table-row {
+  display: flex;
+  padding-inline: 0.5rem;
+  margin-block-end: 0.5rem;
+  border-radius: var(--border-radius-defualt);
+}
+
+.tabel-header-cell,
+.tabel-cell {
+  display: table-cell;
+  padding-block: 0.2rem;
+  padding-inline: 0.2rem;
+  padding-inline-start: 0.3rem;
+}
+
+.tabel-cell {
+  vertical-align: middle;
+}
+
+.tabel-cell.commands {
+  width: 1px;
+  min-width: 1.5rem;
+  padding-inline: 0;
+}
+
+.tabel-cell input {
+  width: 100%;
+  height: 100%;
+}
+
+.tabel-cell[data-field]{
+  padding-inline: 0.5rem;
+  flex-grow: 1;
+}
+
+.table-header-group {
+  display: table-header-group;
+  font-weight: bold;
+}
+
+  </style>
+  <style id="title-element-style">
+title {
+  display: block;
+  font-size: 2rem;
+  margin-block-start: 0.2rem;
+  margin-block-end: 0.5rem;
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+  font-weight: bold;
+  unicode-bidi: isolate;
+}
+
+title.level-1 {
+  font-size: 2rem;
+}
+
+title.level-2 {
+  font-size: 1.5rem;
+}
+
+title.level-3 {
+  font-size: 1.17rem;
+}
+
+title.level-4 {
+  font-size: 1rem;
+}
+
+title.level-5 {
+  font-size: 0.83rem;
+}
+  </style>
+  <style id="warning-dialog">
 #warning-dialog {
   background-image: var(--warning-gradient);
   border-radius: var(--border-radius-defualt);
   font-size: 1rem;
+  padding: auto;
 }
 
-#warning-dialoge-message-container {
+#warning-dialog-message-container {
   display: flex;
   flex-direction: row;
   gap: 1rem;
   justify-content: center;
+  align-items: center;
 }
 
 #warning-dialog-icon,
 #warning-dialog-message {
   display: inline-block;
-  align-self: center;
 }
 
 #warning-dialog-icon {
@@ -100,6 +234,8 @@ body {
   background-color: hsl(50deg 98% 50%);
 }
 
+  </style>
+  <style id="layout-style">
 .header {
   display: flex;
   gap: 2rem;
@@ -134,69 +270,6 @@ body {
   font-size: 1rem;
 }
 
-.header-link,
-.menu-link,
-.command-button {
-  display: block;
-  padding-block: 0.5rem;
-  color: hsl(210deg 14%  53% / 70%);
-  text-decoration: none;
-  border-radius: var(--border-radius-defualt);
-  transition: color 0.2s ease-in-out;
-  transition: background-color 0.1s ease-in-out;
-}
-
-.header-link,
-.menu-link {
-  padding-inline: 1rem;
-}
-
-.command-button {
-  padding-inline: 0.2rem;
-}
-
-
-.header-link {
-  margin-left: -0.5rem;
-} 
-
-.menu-link {
-  text-align: left;
-}
-
-.header-link:hover,
-.menu-link:hover,
-.menu-link.selected,
-.command-button:hover {
-  color: hsl(210deg 14% 70% / 90%);
-}
-
-.header-link:hover,
-.menu-link:hover,
-.menu-link.selected {
-  background-color: hsl(217deg 19% 20% / 70%);
-}
-
-.header-link:hover,
-.menu-link:hover,
-.command-button:hover {
-  cursor: pointer;
-}
-
-input.upload {
-  display: none;
-}
-
-#content-container {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap; 
-  gap: 2rem;
-  padding-block: 0.8rem;
-  padding-inline: 1rem;
-  margin: 0;
-}
-
 menu {
   display: block;
   padding-block: 0.8rem;
@@ -215,6 +288,17 @@ menu ul {
 
 }
 
+#content-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; 
+  gap: 2rem;
+  padding-block: 0.8rem;
+  padding-inline: 1rem;
+  margin: 0;
+}
+
+
 #page-container:last-child {
   flex-grow: 1;
 }
@@ -231,7 +315,7 @@ section.show {
   display: block;
 }
 
-section h2 {
+section title.level-2 {
   margin-top: 0;
 }
 
@@ -240,55 +324,8 @@ section h2 {
   width: 100%;
   border-collapse: collapse;
 }
-/* 
-a.new-school{
-
-}
-a.new-school:hover {
-  
-} */
-
-.table-header-group {
-  display: table-header-group;
-  font-weight: bold;
-}
-
-.table-row-group {
-    display: table-row-group;
-}
-
-.table-row {
-  display: table-row;
-}
-
-.tabel-header-cell,
-.tabel-cell {
-  display: table-cell;
-  padding-block: 0.2rem;
-  padding-inline: 0.2rem;
-  padding-inline-start: 0.3rem;
-}
-
-.tabel-cell {
-  vertical-align: middle;
-}
-
-.tabel-cell.commands {
-  width: 1px;
-  padding-inline: 0;
-}
-
-.header-link:has(i),
-.menu-link:has(i),
-a:has(i) {
-  padding-block: 0.7rem;
-}
 
 @media screen and (max-width: 768px) {
-  html {
-    font-size: 130%;
-  }
-  
   .header {
     flex-direction: column;
     padding-block: 1rem;
@@ -302,23 +339,88 @@ a:has(i) {
     justify-content: center;
   }
 
-  .header-link {
-    margin-bottom: -0.5rem;
-  }
-
   #content-container {
     flex-direction: column;
+  }
+}
+
+  </style>
+  <style id="button-style">
+.header-link,
+.menu-link,
+.command-button {
+  display: block;
+  padding-block: 0.5rem;
+  color: var(--button-text-colour);
+  text-decoration: none;
+  border-radius: var(--border-radius-defualt);
+  transition: color 0.2s ease-in-out;
+  transition: background-color 0.1s ease-in-out;
+}
+
+.header-link,
+.menu-link {
+  padding-inline: 1rem;
+}
+
+.command-button {
+  padding-inline: 0.2rem;
+  padding-block: 0.2rem;
+}
+
+
+.header-link {
+  margin-left: -0.5rem;
+} 
+
+.menu-link {
+  text-align: left;
+}
+
+.header-link:hover,
+.menu-link:hover,
+.menu-link.selected,
+.command-button:hover {
+  color: var(--button-text-hover-colour);
+}
+
+.header-link:hover,
+.menu-link:hover,
+.menu-link.selected {
+  background-color: var(--button-background-colour);
+}
+
+.header-link:hover,
+.menu-link:hover,
+.command-button:hover {
+  cursor: pointer;
+}
+
+.header-link:has(i),
+.menu-link:has(i),
+a:has(i) {
+  padding-block: 0.7rem;
+}
+
+input.upload {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .header-link {
+    margin-bottom: -0.5rem;
   }
 
   .menu-link {
     font-size: 150%;
   }
 }
+
   </style>
   <style id="menu-bar">
 
 details div {
-  padding: 10px;
+  padding: var(--test-size);
   border: 1px solid #ccc;
   margin-top: 5px;
 }
@@ -346,13 +448,12 @@ details div {
             <a class="header-link"
                id="save"
                title="Save data to browser local storage"
-               target="_blank"
-               onclick="onSaveButtonClick()">
+               target="_blank">
               <i class="fas fa-save"></i>
             </a>
           </li>
-          <li><a class="header-link" id="load-json" target="_blank" onclick="onLoadJsonClick()">Load&nbsp;JSON<input type="file" id="json-upload" accept=".json" class="upload"></input></a></li>
-          <li><a class="header-link" id="load-csv" target="_blank" onclick="onLoadCsvClick()">Load&nbsp;CSV<input type="file" id="csv-upload" accept=".csv" class="upload"></input></a></li>
+          <li><a class="header-link" id="load-json" target="_blank">Load&nbsp;JSON<input type="file" id="json-upload" accept=".json" class="upload"></input></a></li>
+          <li><a class="header-link" id="load-csv" target="_blank">Load&nbsp;CSV<input type="file" id="csv-upload" accept=".csv" class="upload"></input></a></li>
           <li><a class="header-link" id="download" title="Download as JSON" target="_blank" onclick="onDownloadClick()"><i class="fas fa-cloud-download-alt"></i></a></li>
         </ul>
       </nav>
@@ -369,7 +470,7 @@ details div {
       </menu>
       <div id="page-container">
         <section data-section="schools">
-          <h2>Schools</h2>
+          <title class="level-2">Schools</title>
           <div id="schools-editor">
             <div class="editor">
               <div class="table-header-group">
@@ -378,8 +479,7 @@ details div {
                   <div class="tabel-cell commands">
                     <a id="new-school" 
                        class="command-button" 
-                       title="Add New School"
-                       onclick="onNewSchoolClick()">
+                       title="Add New School">
                        <i class="fas fa-plus"></i>
                     </a>
                   </div>
@@ -391,16 +491,16 @@ details div {
           </div>
         </section>
         <section data-section="venues">
-          <h2>Venues</h2>
+          <title class="level-2">Venues</title>
         </section>
         <section data-section="mcs">
-          <h2>MCs</h2>
+          <title class="level-2">MCs</title>
         </section>
         <section data-section="heats">
-          <h2>Heats</h2>
+          <title class="level-2">Heats</title>
         </section>
         <section data-section="all">
-          <h2>All</h2>
+          <title class="level-2">All</title>
           <details id="schools">
             <summary><span>Schools</span></summary>
             <div>
@@ -453,7 +553,7 @@ details div {
   </div>
 
   <dialog id="warning-dialog">
-    <div id="warning-dialoge-message-container">
+    <div id="warning-dialog-message-container">
       <div id="warning-dialog-icon"><i class="fas fa-exclamation-triangle"></i></div>
       <div id="warning-dialog-message"></div>
     </div>
@@ -475,17 +575,30 @@ details div {
           Cancel: "warning-dialog-cancel"
         },
         Upload: {
-          JSON: "json-upload",
-          Csv: "csv-upload"
+          JSON: {
+            Button: "load-json",
+            File: "json-upload"
+          },
+          CSV: {
+            Button: "load-csv",
+            File: "csv-upload"
+          }
+        },
+        Save: {
+          Button: "save"
+        },
+        Download: {
+          Button: "download"
         },
         Menu: {
           Links: ".menu-link"
         },
-        Section: "section",  
+        Section: "section", 
         School: {
           Count: "school-count",
           All: "schools",
           Editor: "schools-editor",
+          NewButton: "new-school"
         },
         Team: {
           All: "teams",
@@ -507,7 +620,11 @@ details div {
 
       static #childTableBody = (elementName) => document.querySelectorAll(`#${elementName} table tbody`)[0];
       static #childEditorBody(elementName) { return document.querySelectorAll(`#${elementName} .table-row-group`)[0]};
+      static #childrenEditorClass(elementName, className) { return document.querySelectorAll(`#${elementName} .${className}`)};
 
+      static Collapsible = {
+        Head: document.querySelectorAll(".collapsible")
+      };
       static Dialog = {
         Warning: document.getElementById(this.#names.Dialog.Warning),
         Message: document.getElementById(this.#names.Dialog.Message),
@@ -516,9 +633,21 @@ details div {
 
       };
       static Upload = {
-        JSON: document.getElementById(this.#names.Upload.JSON),
-        Csv: document.getElementById(this.#names.Upload.Csv),
+        JSON: {
+          Button: document.getElementById(this.#names.Upload.JSON.Button),
+          File: document.getElementById(this.#names.Upload.JSON.File)
+        } ,
+        CSV: {
+          Button: document.getElementById(this.#names.Upload.CSV.Button),
+          File: document.getElementById(this.#names.Upload.CSV.File)
+        },
       };
+      static Save = {
+        Button: document.getElementById(this.#names.Save.Button)
+      };
+      static Download = {
+        Button: document.getElementById(this.#names.Download.Button)
+      }
       static Menu = {
         Links: document.querySelectorAll(this.#names.Menu.Links)
       };
@@ -529,6 +658,7 @@ details div {
         Count: document.getElementById(this.#names.School.Count),
         TableBody: this.#childTableBody(this.#names.School.All),
         Editor: {
+          NewButton: document.getElementById(this.#names.School.NewButton),
           Section: document.getElementById(this.#names.School.Editor),
           TableBody: this.#childEditorBody(this.#names.School.Editor),
           Rows: () => this.School.Editor.TableBody.querySelectorAll(".table-row"),
@@ -619,16 +749,19 @@ details div {
     }
 
     class Data {
+      static Dirty = false;
+
       static #heats = null;
 
-      static #findBy = class  {
-        static Id = (o, id) => o.id == id;
+      static #findBy =  {
+        Id: (o, id) => o.id == id
       }
 
-      static #sortBy = class {
-        static Name = (a,b) => a.name.localeCompare(b.name);
-        static Division = (a,b) => -a.division.localeCompare(b.division);
-        static Date = (a,b) => new Date(a.date) - new Date(b.date);
+      static #sortBy = {
+        Name: (a,b) => a.name.localeCompare(b.name),
+        SchoolName: (a, b) => this.Schools.Find(a.schoolId).name.localeCompare(this.Schools.Find(b.schoolId).name),
+        Division: (a,b) => -a.division.localeCompare(b.division),
+        Date:  (a,b) => new Date(a.date) - new Date(b.date)
       }
 
       static Schools = {
@@ -652,7 +785,8 @@ details div {
         Find: (id) => this.#heats.Teams.find(team => this.#findBy.Id(team, id)),
         Sorted: () => this.#heats.Teams
                                  .sort(this.#sortBy.Name)
-                                 .sort(this.#sortBy.Division),
+                                 .sort(this.#sortBy.Division)
+                                 .sort(this.#sortBy.SchoolName),
         Delete: () => {},
         DeleteBySchoolId: (id) => {
           if(typeof id !== "number")
@@ -721,27 +855,31 @@ details div {
 
       static #localStorageKey = "heats-data";
 
-      static loadFromLocalStorage() {
-        const dataString = window.localStorage.getItem(this.#localStorageKey);
-        this.verify(JSON.parse(dataString));
-        Render.All();
-      }
-    
-      static saveTolocalStorage(){
-        this.verify();
+      static #localStorage = {
+        
+        Load: () => {
+          const dataString = window.localStorage.getItem(this.#localStorageKey);
+          this.verify(JSON.parse(dataString));
+          Render.All();
+        },
 
-        try {
-          localStorage.setItem(this.#localStorageKey, JSON.stringify(this.#heats))
-          PopupMessage.Show("Data saved to local storage");
-        } catch (error){
-          PopupMessage.ShowError(error);
+        Save: () => {
+          this.verify();
+
+          try {
+            localStorage.setItem(this.#localStorageKey, JSON.stringify(this.#heats))
+            this.Dirty = false;
+            PopupMessage.Show("Data saved to local storage");
+          } catch (error){
+            PopupMessage.ShowError(error);
+          }
         }
       }
-      
+
       static verify(newData) {
         if(newData) this.#heats = newData;
         if(!this.#heats){
-          this.#heats = this.reset();
+          this.#heats = this.#reset();
           return;
         }
         if(!this.#heats.Schools) this.#heats.Schools = this.#Empty.getSchools();
@@ -753,13 +891,17 @@ details div {
         return this.#heats;
       }
 
-      static reset() {
+      static #reset() {
         this.verify({});
       }
 
-      static Download = class {
-        static #defaultFilename = "Heats.json";
-        static asJSON() {
+      static LoadData() {
+        this.#localStorage.Load();
+      }
+
+      static #defaultFilename = "Heats.json";
+      static #download ={
+        asJSON: () => {
           try{
             const fileType = "application/json"
 
@@ -776,11 +918,69 @@ details div {
           } catch (error) {
             PopupMessage.ShowError(error);
           }
-        };
+        }
+      };
+
+      static #eventHandlers = {
+        Upload: { 
+          JSON: {
+            Click: (event) => Elements.Upload.JSON.File.click(),
+            Change: (event) => {
+              const file = event.target.files[0];
+              if (file && file.type === "application/json") {
+                const reader = new FileReader();
+
+                reader.onload = (e) =>{
+                  try {
+                    this.verify(JSON.parse(e.target.result));
+                    Render.All();
+                    PopupMessage.Show(`File ${"file"} loaded successfully`);
+                  } catch (error){
+                    console.error("FileReader error:", e.target.error);
+                    PopupMessage.ShowError("Error reading file.");
+                  }
+                };
+                
+                reader.onerror = (e) => {
+                  console.error("FileReader error:", e.target.error);
+                  PopupMessage.ShowError("Error reading file.");
+                };
+
+                reader.readAsText(file);
+
+                Elements.Upload.JSON.value = "";
+                return;
+              }
+            }
+          },
+          CSV: {
+            Click: (event) => Elements.Upload.CSV.File.click(),
+            Change: (event) => {
+              PopupMessage.FeatureNotImplemented("CSV upload");
+              Elements.Upload.Csv.value = "";
+            }
+          }
+        },
+        Save: {
+          Click: (event) => this.#localStorage.Save()
+        },
+        Download: { 
+          Click: (event) => this.#download.asJSON()
+        }
+      }
+
+      static EnableEvents() {
+        Elements.Save.Button.addEventListener('click', this.#eventHandlers.Save.Click);
+        Elements.Upload.JSON.Button.addEventListener('click', this.#eventHandlers.Upload.JSON.Click);
+        Elements.Upload.JSON.File.addEventListener('change', this.#eventHandlers.Upload.JSON.Change);
+        Elements.Download.Button.addEventListener('click', this.#eventHandlers.Download.Click);
+        Elements.Upload.CSV.Button.addEventListener('click', this.#eventHandlers.Upload.CSV.Click);
+        Elements.Upload.CSV.File.addEventListener('change', this.#eventHandlers.Upload.CSV.Change);
       }
     };
 
     class Render {
+      static #domParser = new DOMParser();
       static #fields = {
         School: {
           Id: "{school-id}",
@@ -809,26 +1009,58 @@ details div {
       }
       static #templates = {
         School: {
-          Editor: `
-          <div class="table-row" data-schoolId="${Render.#fields.School.Id}">
-            <div class="tabel-cell commands">
-              <a class="command-button edit-school"
-                 title="Edit School">
-                <i class="fas fa-edit"></i>
-              </a>
-            </div>
-            <div class="tabel-cell commands">
-              <a class="command-button delete-school"
-                 title="Delete School">
-                <i class="far fa-trash-alt"></i>
-              </a>
-            </div>
-            <div class="tabel-cell" data-field="Name"
-                 data-value="${Render.#fields.School.Name}"
-                 onclick="onCellClick(event)">
-              ${Render.#fields.School.Name}
-            </div>
-          </div>`.trim(),
+          Editor: { 
+            Display: `
+              <div class="table-row" data-schoolId="${Render.#fields.School.Id}">
+                <div class="tabel-cell commands">
+                  <a class="command-button edit-school"
+                    title="Edit School">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                </div>
+                <div class="tabel-cell commands">
+                  <a class="command-button delete-school"
+                    title="Delete School">
+                    <i class="far fa-trash-alt"></i>
+                  </a>
+                </div>
+                <div class="tabel-cell" data-field="Name"
+                     data-value="${Render.#fields.School.Name}">
+                  <div class="collapsible">
+                    ${Render.#fields.School.Name}
+                  </div>
+                  <div class="school-teams-list collapsible-content">
+                    <title class="level-3">Teams</title>
+                  </div>
+                </div>
+              </div>`.trim(),
+            Edit: `
+              <div class="table-row" data-schoolId="${Render.#fields.School.Id}">
+                <div class="tabel-cell commands">
+                  <a class="command-button save-school"
+                     title="Save School">
+                    <i class="fas fa-save"></i>
+                  </a>
+                </div>
+                <div class="tabel-cell commands">
+                  <a class="command-button cancel-edit-school"
+                     title="Cancel Edit">
+                    <i class="fas fa-window-close"></i>
+                  </a>
+                </div>
+                <div class="tabel-cell" data-field="Name"
+                    data-value="${Render.#fields.School.Name}">
+                  <input type="text" data-field="Name" value="${Render.#fields.School.Name}" />
+                </div>
+              </div>`.trim(),
+            Teams: {
+              Devision: `
+                <div>
+
+                </div>
+              `.trim(),
+            }
+          },
           Row: `<tr data-id="${this.#fields.School.Id}"><td>${this.#fields.School.Name}</td></tr>`.trim()
         },
         Team: {
@@ -860,7 +1092,7 @@ details div {
         section.Editor.TableBody.innerHTML = "";
       }
 
-      static Reset() {
+      static #reset() {
 
         Render.#resetSection(Elements.School);
         Render.#resetSection(Elements.Team);
@@ -892,10 +1124,7 @@ details div {
         School: {
           All: (html,school) => (html += this.#templates.School.Row
                                              .replaceAll(this.#fields.School.Id, school.id)
-                                             .replaceAll(this.#fields.School.Name, school.name)),
-          Editor: (html,school) => html += this.#templates.School.Editor
-                                           .replaceAll(this.#fields.School.Id, school.id)
-                                           .replaceAll(this.#fields.School.Name, school.name),
+                                             .replaceAll(this.#fields.School.Name, school.name))
         },
 
         Team: {
@@ -939,7 +1168,42 @@ details div {
       };
 
       static #eventHandlers = {
+        Collapsible: {
+          Click: (e) => {
+            e.target.parentNode.classList.toggle("active");
+          }
+        },
+        Menu: {
+          Click: (event) => {
+            const className = "selected";
+            var menuItem = event.target;
+            if(!menuItem.classList.contains("menu-link"))
+              menuItem = menuItem.closest(".menu-link");
+            var sectionName = menuItem?.dataset?.section;
+
+            if(!sectionName) {
+              PopupMessage.ShowError("Section missing");
+            }
+            
+            menuItem.classList.add(className);
+            [...Elements.Menu.Links].filter(l => l.dataset.section !== sectionName)
+                                    .forEach(l => l.classList.remove(className));
+
+            Elements.Section.All
+                    .forEach(s => {
+                      if(s.dataset.section == sectionName) {
+                        s.classList.add("show");
+                        return;
+                      } 
+                      s.classList.remove("show");
+                      
+                    });
+          }
+        },
         School: {
+          NewClick: (event) => {
+            PopupMessage.FeatureNotImplemented();
+          },
           DeleteClick: (event) => {
             const row = event.target.closest(".table-row");
             const schoolId = row?.dataset?.schoolid;
@@ -966,9 +1230,79 @@ details div {
           },
           CancelDelete: () => {
             PopupMessage.Show("Cancelled: School not deleted.");
+          },
+          EditClick: (event) => {
+            const row = event.target.closest(".table-row");
+            const school = Data.Schools.Find(parseInt(row.dataset.schoolid));
+            const editRow = this.#createElement.School.EditRow(school);
+            row.replaceWith(editRow);
+          },
+          SaveEditClick: (event) => {
+            const row = event.target.closest(".table-row");
+            const school = Data.Schools.Find(parseInt(row.dataset.schoolid));
+            const nameValue = row.querySelector('[data-field="Name"] input')?.value;
+            if(!nameValue){
+              PopupMessage.ShowError("Error: Name cannot be empty");
+              return;
+            }
+            school.name = nameValue;
+
+            const dataRow = this.#createElement.School.DisplayRow(school);
+            row.replaceWith(dataRow);
+            this.Heats();
+            this.Teams();
+          },
+          CancelEditClick: (event) => {
+            const row = event.target.closest(".table-row");
+            const school = Data.Schools.Find(parseInt(row.dataset.schoolid));
+            
+            const dataRow = this.#createElement.School.DisplayRow(school);
+            row.replaceWith(dataRow);
           }
         }
+      }
 
+      static #createElement = {
+        School: {
+          EditRow: (school) => {
+            const editRow = this.#domParser.parseFromString(
+              this.#templates.School.Editor.Edit
+                             .replaceAll(this.#fields.School.Id, school.id)
+                             .replaceAll(this.#fields.School.Name, school.name),
+              'text/html').body.childNodes[0];
+
+            const saveButton = editRow.querySelector(".save-school");
+            const cancelButton = editRow.querySelector(".cancel-edit-school");
+            saveButton.addEventListener("click", this.#eventHandlers.School.SaveEditClick);
+            cancelButton.addEventListener("click", this.#eventHandlers.School.CancelEditClick);
+
+            return editRow;
+          },
+          DisplayRow: (school) => {
+            const row = this.#domParser.parseFromString(
+              this.#templates.School.Editor.Display
+                             .replaceAll(this.#fields.School.Id, school.id)
+                             .replaceAll(this.#fields.School.Name, school.name),
+              'text/html').body.childNodes[0];
+            const editButton = row.querySelector(".edit-school")
+            const deleteButton = row.querySelector(".delete-school")
+            editButton.addEventListener("click", this.#eventHandlers.School.EditClick);
+            deleteButton.addEventListener("click", this.#eventHandlers.School.DeleteClick);
+            
+            this.#enableCollapsibleEvents(row);
+
+            return row;
+          }
+        }
+      }
+
+      static EnableEvents() {
+        Elements.School.Editor.NewButton.addEventListener("click", this.#eventHandlers.School.NewClick);
+        Elements.Menu.Links.forEach(l => l.addEventListener('click', this.#eventHandlers.Menu.Click))
+      }
+
+      static #enableCollapsibleEvents(element) {
+        [...element.querySelectorAll(".collapsible")].forEach(c => c.addEventListener("click", this.#eventHandlers.Collapsible.Click));
       }
 
       static Schools(){
@@ -980,18 +1314,12 @@ details div {
         const schools = Data.Schools.Sorted()
         Elements.School.Count.innerHTML = `${schools.length ?? 0}`;
         Elements.School.TableBody.innerHTML = schools.reduce(this.#render.School.All, "");
-        Elements.School.Editor.TableBody.innerHTML = schools.reduce(this.#render.School.Editor, "");
 
-        Elements.School.Editor.Rows().forEach(row => {
-          const id = row.dataset.schoolid;
-          if(!id)
-            return;
-
-          const editButton = row.querySelector(".edit-school")
-          const deleteButton = row.querySelector(".delete-school")
-          editButton.addEventListener("click", (e) => PopupMessage.Show(`Edit School Id: ${id}`))
-          deleteButton.addEventListener("click", this.#eventHandlers.School.DeleteClick);
+        schools.forEach(school => {
+          const row = this.#createElement.School.DisplayRow(school);
+          Elements.School.Editor.TableBody.append(row);
         });
+
       }
 
       static Teams(){
@@ -1025,7 +1353,7 @@ details div {
 
       static All() {
         if(!Data.verify()) {
-          this.Reset();
+          this.#reset();
           return;
         }
 
@@ -1042,107 +1370,9 @@ details div {
 
     }
 
-    function editSchoolRow(){
-      
-    }
-/*
- * Event Handlers
- */
-
-    function onCellClick(e) {
-      const fieldName = e.target.dataset.field;
-
-      PopupMessage.Show(`Field: ${fieldName}`);
-    }
-
-    function onSaveButtonClick() {
-      Data.saveTolocalStorage();
-    }
-
-    function onLoadJsonClick() {
-      Elements.Upload.JSON.click();
-    }
-
-    function onJsonUploadChange(event) {
-      const file = event.target.files[0];
-      if (file && file.type === "application/json") {
-        const reader = new FileReader();
-
-        reader.onload = function(e){
-          try {
-            Data.verify(JSON.parse(e.target.result));
-            Render.All();
-            PopupMessage.Show(`File ${"file"} loaded successfully`);
-          } catch (error){
-            console.error("FileReader error:", e.target.error);
-            PopupMessage.ShowError("Error reading file.");
-          }
-        };
-        
-        reader.onerror = function(e) {
-          console.error("FileReader error:", e.target.error);
-          PopupMessage.ShowError("Error reading file.");
-        };
-
-        reader.readAsText(file);
-
-        Elements.Upload.JSON.value = "";
-        return;
-      }
-
-      PopupMessage.Show(`File ${"file"} is not valid`);
-      Elements.Upload.JSON.value = "";
-    }
-
-    function onLoadCsvClick() {
-      Elements.Upload.Csv.click();
-    }
-
-    function onCsvUploadChange(event) {
-      PopupMessage.FeatureNotImplemented("CSV upload");
-      Elements.Upload.Csv.value = "";
-    }
-
-    function onDownloadClick() {
-      Data.Download.asJSON();
-    }
-
-    function onMenuItemClick(e) {
-      const className = "selected";
-      const menuItem = e.target;
-      var sectionName = menuItem?.dataset?.section;
-
-      if(!sectionName) {
-        PopupMessage.ShowError("Section missing");
-      }
-      
-      menuItem.classList.add(className);
-      [...Elements.Menu.Links].filter(l => l.dataset.section !== sectionName)
-                              .forEach(l => l.classList.remove(className));
-
-      Elements.Section.All
-              .forEach(s => {
-                if(s.dataset.section == sectionName) {
-                  s.classList.add("show");
-                } else {
-                  s.classList.remove("show");
-                }
-              });
-
-    }
-
-    function onNewSchoolClick() {
-      PopupMessage.FeatureNotImplemented();
-    }
-
-    function hookupGlobalEvents() {
-      Elements.Upload.JSON.addEventListener('change', onJsonUploadChange);
-      Elements.Upload.Csv.addEventListener('change', onCsvUploadChange);
-      Elements.Menu.Links.forEach(l => l.addEventListener('click', onMenuItemClick))
-    }
-
-    hookupGlobalEvents();
-    Data.loadFromLocalStorage();
+    Data.EnableEvents();
+    Render.EnableEvents();
+    Data.LoadData();
 
   </script>
 </body>
