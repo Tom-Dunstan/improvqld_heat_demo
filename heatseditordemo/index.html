@@ -657,7 +657,9 @@ details div {
           Count: "team-count",
           Editor: "teams-editor",
           EditButton: "edit-team",
-          DeleteButton: "delete-team"
+          DeleteButton: "delete-team",
+          SaveButton: "save-team",
+          CancelButton: "cancel-edit-team"
         },
         Venue: {
           All: "venues",
@@ -732,6 +734,8 @@ details div {
           TableBody: (row, division) => row.querySelector(`.${this.Names.Team.Editor} [data-division="${division}"]`),
           EditButton: (row) => row.querySelector(`.${this.Names.Team.EditButton}`),
           DeleteButton: (row) => row.querySelector(`.${this.Names.Team.DeleteButton}`),
+          SaveButton: (row) => row.querySelector(`.${this.Names.Team.SaveButton}`),
+          CancelButton: (row) => row.querySelector(`.${this.Names.Team.CancelButton}`),
         }
       };
       static Venue = {
@@ -843,9 +847,10 @@ details div {
           this.#heats.Schools.splice(schoolIndex, 1);
           return true;
         },
-        DivsionTeams: (id, division) => 
-          this.#heats.Teams.filter(team => (team.schoolId === id) 
-                                        && (team.division === division))
+        DivsionTeams: (id, division) =>
+          this.#heats.Teams.filter(team => (team.schoolId === id)
+                                        && (team.division === division)),
+        NameExits: (id, name) => this.#heats.Schools.filter(school => school.id !== id && school.name.toLowerCase() === name.toLowerCase()).length > 0
       }
 
       static Teams = {
@@ -1161,13 +1166,13 @@ details div {
                    data-division="${this.#fields.Team.Division}"
                    data-teamId="${this.#fields.Team.Id}">
                 <div class="tabel-cell commands">
-                  <a class="command-button edit-team"
+                  <a class="command-button ${Elements.Names.Team.EditButton}"
                     title="Edit Team">
                     <i class="fas fa-edit"></i>
                   </a>
                 </div>
                 <div class="tabel-cell commands">
-                  <a class="command-button delete-team"
+                  <a class="command-button ${Elements.Names.Team.DeleteButton}"
                     title="Delete Team">
                     <i class="far fa-trash-alt"></i>
                   </a>
@@ -1176,6 +1181,30 @@ details div {
                       data-field="Name"
                       data-value="${Render.#fields.School.Name}">
                   ${this.#fields.Team.Name}
+                </div>
+              </div>
+            </div>
+            `.trim(),
+            Edit: `
+              <div class="table-row"
+                   data-division="${this.#fields.Team.Division}"
+                   data-teamId="${this.#fields.Team.Id}">
+                <div class="tabel-cell commands">
+                  <a class="command-button ${Elements.Names.Team.SaveButton}"
+                    title="Save Team">
+                    <i class="fas fa-save"></i>
+                  </a>
+                </div>
+                <div class="tabel-cell commands">
+                  <a class="command-button ${Elements.Names.Team.CancelButton}"
+                    title="Cancel Edit">
+                    <i class="far fa-window-close"></i>
+                  </a>
+                </div>
+                <div class="tabel-cell"
+                      data-field="Name"
+                      data-value="${Render.#fields.School.Name}">
+                  <input type="text" data-field="Name" value="${Render.#fields.Team.Name}" />
                 </div>
               </div>
             </div>
@@ -1362,6 +1391,12 @@ details div {
               PopupMessage.ShowError("Error: Name cannot be empty");
               return;
             }
+
+            if(Data.Schools.NameExits(school.id, nameValue)){
+              PopupMessage.ShowError(`Error: Another school already has the name "${nameValue}"`);
+              return;
+            }
+
             school.name = nameValue;
 
             const dataRow = this.#createElement.School.DisplayRow(school);
@@ -1371,9 +1406,9 @@ details div {
           },
           CancelEditClick: (event) => {
             const row = event.target.closest(".table-row");
-            const school = Data.Schools.Find(parseInt(row.dataset.schoolid));
+            const school = Data.Schools.Find(parseInt(row.dataset.teamid));
             
-            const dataRow = this.#createElement.School.DisplayRow(school);
+            const dataRow = this.#createElement.Team.DisplayRow(school);
             row.replaceWith(dataRow);
           }
         },
@@ -1388,13 +1423,31 @@ details div {
             PopupMessage.FeatureNotImplemented();
           },
           EditClick: (event) => {
-            PopupMessage.FeatureNotImplemented();
+            const row = event.target.closest(".table-row");
+            const team = Data.Teams.Find(parseInt(row.dataset.teamid));
+            const editRow = this.#createElement.Team.EditRow(team);
+            row.replaceWith(editRow);
           },
           SaveEditClick: (event) => {
-            PopupMessage.FeatureNotImplemented();
+            const row = event.target.closest(".table-row");
+            const team = Data.Teams.Find(parseInt(row.dataset.teamid));
+            const nameValue = row.querySelector('[data-field="Name"] input')?.value;
+            if(!nameValue){
+              PopupMessage.ShowError("Error: Name cannot be empty");
+              return;
+            }
+            team.name = nameValue;
+
+            const dataRow = this.#createElement.Team.DisplayRow(team);
+            row.replaceWith(dataRow);
+            this.Teams();
           },
           CancelEditClick: (event) => {
-            PopupMessage.FeatureNotImplemented();
+            const row = event.target.closest(".table-row");
+            const team = Data.Teams.Find(parseInt(row.dataset.teamid));
+            
+            const dataRow = this.#createElement.Team.DisplayRow(team);
+            row.replaceWith(dataRow);
           }
         }
       }
@@ -1416,7 +1469,6 @@ details div {
             return editRow;
           },
           DisplayRow: (school) => {
-            //const seniorTeams =
             const row = this.#domParser.parseFromString(
               this.#templates.School.Editor.Display
                              .replaceAll(this.#fields.School.Id, school.id)
@@ -1441,19 +1493,34 @@ details div {
 
             if(seniorTeams?.length) {
               const seniorRows = row.querySelector(`[data-division="Senior"]`);
-              seniorTeams.forEach(team => seniorRows.appendChild(this.#createElement.Teams.DisplayRow(team)));
+              seniorTeams.forEach(team => seniorRows.appendChild(this.#createElement.Team.DisplayRow(team)));
             }
 
             if(juniorTeams?.length) {
               const juniorRows = row.querySelector(`[data-division="Junior"]`);
-              juniorTeams.forEach(team => juniorRows.appendChild(this.#createElement.Teams.DisplayRow(team)));
+              juniorTeams.forEach(team => juniorRows.appendChild(this.#createElement.Team.DisplayRow(team)));
             }
 
             return row;
           }
         },
-        Teams: {
-          Editor: (team) => {},
+        Team: {
+          EditRow: (team) => {
+            const row = this.#domParser.parseFromString(
+              this.#templates.Team.Editor.Edit
+                             .replaceAll(this.#fields.Team.Id, team.id)
+                             .replaceAll(this.#fields.Team.Name, team.name)
+                             .replaceAll(this.#fields.Team.Division, team.division),
+              'text/html').body.childNodes[0];
+
+            Elements.Team.Editor.SaveButton(row)
+                    .addEventListener("click", this.#eventHandlers.Team.SaveEditClick);
+            Elements.Team.Editor.CancelButton(row)
+                    .addEventListener("click", this.#eventHandlers.Team.CancelEditClick);
+
+            return row;
+
+          },
           DisplayRow: (team) => {
             if(!team) 
               return undefined;
