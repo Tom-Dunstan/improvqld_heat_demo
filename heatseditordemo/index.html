@@ -23,6 +23,9 @@
 
   --group-background-colour: hsl(217deg 19% 20% / 50%);
 
+  --sub-group-background-colour: hsl(0deg 0% 0% / 50%);
+
+
   --button-background-colour: hsl(217deg 19% 20% / 70%);
   /* --button-background-hover-colour: hsl(217deg 19% 20% / 70%); */
 
@@ -37,6 +40,8 @@
     hsl(45deg 93% 78%));
 
   --border-radius-defualt: 0.5rem;
+
+  --title-text-colour: hsl(0deg 0% 100% / 80%);
 
 }
   </style>
@@ -148,16 +153,40 @@ div.table-row:has(.collapsible:hover){
   font-weight: bold;
 }
 
+.editor.sub-editor .table-row {
+  /* padding-inline-start: 0; */
+  margin-block: 0.25rem;
+}
+
+.editor.sub-editor .table-header-group .table-row {
+  margin-block-end: 0;
+}
+
+.teams-editor {
+  border-radius: var(--border-radius-defualt);
+  background-color: var(--sub-group-background-colour);
+}
+
+.teams-editor:not(:last-child) {
+  margin-block-end: 1rem;
+}
+
+.teams-editor:last-child {
+  margin-block-end: 0.5rem;
+}
+
+
   </style>
   <style id="title-element-style">
 title {
   display: block;
   font-size: 2rem;
+  font-weight: bold;
+  color: var(--title-text-colour);
   margin-block-start: 0.2rem;
   margin-block-end: 0.5rem;
   margin-inline-start: 0;
   margin-inline-end: 0;
-  font-weight: bold;
   unicode-bidi: isolate;
 }
 
@@ -180,8 +209,14 @@ title.level-4 {
 title.level-5 {
   font-size: 0.83rem;
 }
+
+.table-header-group title {
+  margin-block: 0;
+}
+
+
   </style>
-  <style id="warning-dialog">
+  <style id="warning-dialog-style">
 #warning-dialog {
   background-image: var(--warning-gradient);
   border-radius: var(--border-radius-defualt);
@@ -272,8 +307,8 @@ title.level-5 {
 
 menu {
   display: block;
-  padding-block: 0.8rem;
-  padding-inline: 1rem;
+  padding-block: 0;
+  padding-inline: 0;
   margin: 0;
   border-radius: var(--border-radius-defualt);
   background-color: var(--group-background-colour);
@@ -377,6 +412,12 @@ section title.level-2 {
   text-align: left;
 }
 
+.menu-link i {
+    text-align: center;
+    min-width: 1.5rem;
+    padding-inline-end: 0.25rem;
+}
+
 .header-link:hover,
 .menu-link:hover,
 .menu-link.selected,
@@ -413,11 +454,12 @@ input.upload {
 
   .menu-link {
     font-size: 150%;
+    padding-inline: 1.5rem;
   }
 }
 
   </style>
-  <style id="menu-bar">
+  <style id="menu-bar-style">
 
 details div {
   padding: var(--test-size);
@@ -465,7 +507,7 @@ details div {
           <li><a class="menu-link" data-section="venues" target="_blank"><i class="fas fa-map-marker-alt"></i> Venues (<span id="venue-count">0</span>)</a></li>
           <li><a class="menu-link" data-section="mcs" target="_blank"><i class="fas fa-user"></i> MCs (<span id="mc-count">0</span>)</a></li>
           <li><a class="menu-link" data-section="heats" target="_blank"><i class="fas fa-calendar-alt"></i> Heats (<span id="heat-count">0</span>)</a></li>
-          <li><a class="menu-link" data-section="all" target="_blank">All</a></li>
+          <li><a class="menu-link" data-section="all" target="_blank"><i class="fas fa-list"></i> All</a></li>
         </ul>
       </menu>
       <div id="page-container">
@@ -567,7 +609,11 @@ details div {
   <script id="editor-scripts">
 
     class Elements {
-      static #names = {
+      static Names = {
+        Collapsible: {
+          Head: "collapsible",
+          Content: "collapsible-content"
+        },
         Dialog: {
           Warning: "warning-dialog",
           Message: "warning-dialog-message",
@@ -598,11 +644,20 @@ details div {
           Count: "school-count",
           All: "schools",
           Editor: "schools-editor",
-          NewButton: "new-school"
+          NewButton: "new-school",
+          EditButton: "edit-school",
+          DeleteButton: "delete-school",
+          SaveButton: "save-school",
+          CancelButton: "cancel-edit-school",
+          NewSeniorTeamButton: "new-senior-team",
+          NewJuniorTeamButton: "new-junior-team"
         },
         Team: {
           All: "teams",
-          Count: "team-count"
+          Count: "team-count",
+          Editor: "teams-editor",
+          EditButton: "edit-team",
+          DeleteButton: "delete-team"
         },
         Venue: {
           All: "venues",
@@ -623,63 +678,73 @@ details div {
       static #childrenEditorClass(elementName, className) { return document.querySelectorAll(`#${elementName} .${className}`)};
 
       static Collapsible = {
-        Head: document.querySelectorAll(".collapsible")
+        Head: document.querySelectorAll(`.${this.Names.Collapsible.Head}`)
       };
       static Dialog = {
-        Warning: document.getElementById(this.#names.Dialog.Warning),
-        Message: document.getElementById(this.#names.Dialog.Message),
+        Warning: document.getElementById(this.Names.Dialog.Warning),
+        Message: document.getElementById(this.Names.Dialog.Message),
         Confirm: document.getElementById("warning-dialog-confirm"),
         Cancel: document.getElementById("warning-dialog-cancel")
-
       };
       static Upload = {
         JSON: {
-          Button: document.getElementById(this.#names.Upload.JSON.Button),
-          File: document.getElementById(this.#names.Upload.JSON.File)
+          Button: document.getElementById(this.Names.Upload.JSON.Button),
+          File: document.getElementById(this.Names.Upload.JSON.File)
         } ,
         CSV: {
-          Button: document.getElementById(this.#names.Upload.CSV.Button),
-          File: document.getElementById(this.#names.Upload.CSV.File)
+          Button: document.getElementById(this.Names.Upload.CSV.Button),
+          File: document.getElementById(this.Names.Upload.CSV.File)
         },
       };
       static Save = {
-        Button: document.getElementById(this.#names.Save.Button)
+        Button: document.getElementById(this.Names.Save.Button)
       };
       static Download = {
-        Button: document.getElementById(this.#names.Download.Button)
+        Button: document.getElementById(this.Names.Download.Button)
       }
       static Menu = {
-        Links: document.querySelectorAll(this.#names.Menu.Links)
+        Links: document.querySelectorAll(this.Names.Menu.Links)
       };
       static Section = {
-        All: document.querySelectorAll(this.#names.Section)
+        All: document.querySelectorAll(this.Names.Section)
       }
       static School = {
-        Count: document.getElementById(this.#names.School.Count),
-        TableBody: this.#childTableBody(this.#names.School.All),
+        Count: document.getElementById(this.Names.School.Count),
+        TableBody: this.#childTableBody(this.Names.School.All),
         Editor: {
-          NewButton: document.getElementById(this.#names.School.NewButton),
-          Section: document.getElementById(this.#names.School.Editor),
-          TableBody: this.#childEditorBody(this.#names.School.Editor),
+          NewButton: document.getElementById(this.Names.School.NewButton),
+          Section: document.getElementById(this.Names.School.Editor),
+          TableBody: this.#childEditorBody(this.Names.School.Editor),
+          EditButton: (row) => row.querySelector(`.${this.Names.School.EditButton}`),
+          DeleteButton: (row) => row.querySelector(`.${this.Names.School.DeleteButton}`),
+          SaveButton: (row) => row.querySelector(`.${this.Names.School.SaveButton}`),
+          CancelButton: (row) => row.querySelector(`.${this.Names.School.CancelButton}`),
+          NewSeniorTeamButton: (row) => row.querySelector(`.${this.Names.School.NewSeniorTeamButton}`),
+          NewJuniorTeamButton: (row) => row.querySelector(`.${this.Names.School.NewJuniorTeamButton}`),
           Rows: () => this.School.Editor.TableBody.querySelectorAll(".table-row"),
           ItemById: (id) => this.School.Editor.TableBody.querySelector(`[data-schoolid="${id}"]`)
         }
       };
       static Team = {
-        Count: document.getElementById(this.#names.Team.Count),
-        TableBody: this.#childTableBody(this.#names.Team.All)
+        Count: document.getElementById(this.Names.Team.Count),
+        TableBody: this.#childTableBody(this.Names.Team.All),
+        Editor: { 
+          TableBody: (row, division) => row.querySelector(`.${this.Names.Team.Editor} [data-division="${division}"]`),
+          EditButton: (row) => row.querySelector(`.${this.Names.Team.EditButton}`),
+          DeleteButton: (row) => row.querySelector(`.${this.Names.Team.DeleteButton}`),
+        }
       };
       static Venue = {
-        Count: document.getElementById(this.#names.Venue.Count),
-        TableBody: this.#childTableBody(this.#names.Venue.All)
+        Count: document.getElementById(this.Names.Venue.Count),
+        TableBody: this.#childTableBody(this.Names.Venue.All)
       };
       static MC = {
-        Count: document.getElementById(this.#names.MC.Count),
-        TableBody: this.#childTableBody(this.#names.MC.All)
+        Count: document.getElementById(this.Names.MC.Count),
+        TableBody: this.#childTableBody(this.Names.MC.All)
       };
       static Heat = {
-        Count: document.getElementById(this.#names.Heat.Count),
-        TableBody: this.#childTableBody(this.#names.Heat.All)
+        Count: document.getElementById(this.Names.Heat.Count),
+        TableBody: this.#childTableBody(this.Names.Heat.All)
       };
     }
 
@@ -777,7 +842,10 @@ details div {
 
           this.#heats.Schools.splice(schoolIndex, 1);
           return true;
-        }
+        },
+        DivsionTeams: (id, division) => 
+          this.#heats.Teams.filter(team => (team.schoolId === id) 
+                                        && (team.division === division))
       }
 
       static Teams = {
@@ -971,9 +1039,9 @@ details div {
 
       static EnableEvents() {
         Elements.Save.Button.addEventListener('click', this.#eventHandlers.Save.Click);
+        Elements.Download.Button.addEventListener('click', this.#eventHandlers.Download.Click);
         Elements.Upload.JSON.Button.addEventListener('click', this.#eventHandlers.Upload.JSON.Click);
         Elements.Upload.JSON.File.addEventListener('change', this.#eventHandlers.Upload.JSON.Change);
-        Elements.Download.Button.addEventListener('click', this.#eventHandlers.Download.Click);
         Elements.Upload.CSV.Button.addEventListener('click', this.#eventHandlers.Upload.CSV.Click);
         Elements.Upload.CSV.File.addEventListener('change', this.#eventHandlers.Upload.CSV.Change);
       }
@@ -1013,57 +1081,106 @@ details div {
             Display: `
               <div class="table-row" data-schoolId="${Render.#fields.School.Id}">
                 <div class="tabel-cell commands">
-                  <a class="command-button edit-school"
+                  <a class="command-button ${Elements.Names.School.EditButton}"
                     title="Edit School">
                     <i class="fas fa-edit"></i>
                   </a>
                 </div>
                 <div class="tabel-cell commands">
-                  <a class="command-button delete-school"
+                  <a class="command-button ${Elements.Names.School.DeleteButton}"
                     title="Delete School">
                     <i class="far fa-trash-alt"></i>
                   </a>
                 </div>
-                <div class="tabel-cell" data-field="Name"
+                <div class="tabel-cell"
+                     data-field="Name"
                      data-value="${Render.#fields.School.Name}">
-                  <div class="collapsible">
+                  <div class="${Elements.Names.Collapsible.Head}">
                     ${Render.#fields.School.Name}
                   </div>
-                  <div class="school-teams-list collapsible-content">
+                  <div class="school-teams-list ${Elements.Names.Collapsible.Content}">
                     <title class="level-3">Teams</title>
+                    <div class="${Elements.Names.Team.Editor} editor sub-editor">
+                      <div class="table-header-group">
+                        <div class="table-row">
+                          <div class="tabel-cell commands"></div>
+                          <div class="tabel-cell commands">
+                            <a class="command-button ${Elements.Names.School.NewSeniorTeamButton}" title="Add New Senior Division Team">
+                              <i class="fas fa-plus"></i>
+                            </a>
+                          </div>
+                          <div class="tabel-cell"><title class="level-4">Senior Division</title></div>
+                        </div>
+                      </div>
+                      <div class="table-row-group" data-division="Senior">
+                      </div>
+                    </div>
+                    <div class="${Elements.Names.Team.Editor} editor sub-editor">
+                      <div class="table-header-group">
+                        <div class="table-row">
+                          <div class="tabel-cell commands"></div>
+                          <div class="tabel-cell commands">
+                            <a class="command-button ${Elements.Names.School.NewJuniorTeamButton}" title="Add New Junior Division Team">
+                              <i class="fas fa-plus"></i>
+                            </a>
+                          </div>
+                          <div class="tabel-cell"><title class="level-4">Junior Division</title></div>
+                        </div>
+                      </div>
+                      <div class="table-row-group" data-division="Junior"></div>
+                    </div>
                   </div>
                 </div>
               </div>`.trim(),
             Edit: `
               <div class="table-row" data-schoolId="${Render.#fields.School.Id}">
                 <div class="tabel-cell commands">
-                  <a class="command-button save-school"
+                  <a class="command-button ${Elements.Names.School.SaveButton}"
                      title="Save School">
                     <i class="fas fa-save"></i>
                   </a>
                 </div>
                 <div class="tabel-cell commands">
-                  <a class="command-button cancel-edit-school"
+                  <a class="command-button ${Elements.Names.School.CancelButton}"
                      title="Cancel Edit">
                     <i class="fas fa-window-close"></i>
                   </a>
                 </div>
                 <div class="tabel-cell" data-field="Name"
-                    data-value="${Render.#fields.School.Name}">
+                     data-value="${Render.#fields.School.Name}">
                   <input type="text" data-field="Name" value="${Render.#fields.School.Name}" />
                 </div>
-              </div>`.trim(),
-            Teams: {
-              Devision: `
-                <div>
-
-                </div>
-              `.trim(),
-            }
+              </div>`.trim()
           },
           Row: `<tr data-id="${this.#fields.School.Id}"><td>${this.#fields.School.Name}</td></tr>`.trim()
         },
         Team: {
+          Editor: {
+            Display: `
+              <div class="table-row"
+                   data-division="${this.#fields.Team.Division}"
+                   data-teamId="${this.#fields.Team.Id}">
+                <div class="tabel-cell commands">
+                  <a class="command-button edit-team"
+                    title="Edit Team">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                </div>
+                <div class="tabel-cell commands">
+                  <a class="command-button delete-team"
+                    title="Delete Team">
+                    <i class="far fa-trash-alt"></i>
+                  </a>
+                </div>
+                <div class="tabel-cell"
+                      data-field="Name"
+                      data-value="${Render.#fields.School.Name}">
+                  ${this.#fields.Team.Name}
+                </div>
+              </div>
+            </div>
+            `.trim()
+          },
           Row: `<tr data-id="${this.#fields.Team.Id}"><td>${this.#fields.School.Name}</td><td>${this.#fields.Team.Division}</td><td>${this.#fields.Team.Name}</td></tr>`.trim()
         },
         Venue: {
@@ -1259,6 +1376,26 @@ details div {
             const dataRow = this.#createElement.School.DisplayRow(school);
             row.replaceWith(dataRow);
           }
+        },
+        Team: {
+          NewSeniorClick: (event) => {
+            PopupMessage.FeatureNotImplemented();
+          },
+          NewJuniorClick: (event) => {
+            PopupMessage.FeatureNotImplemented();
+          },
+          DeleteClick: (event) => {
+            PopupMessage.FeatureNotImplemented();
+          },
+          EditClick: (event) => {
+            PopupMessage.FeatureNotImplemented();
+          },
+          SaveEditClick: (event) => {
+            PopupMessage.FeatureNotImplemented();
+          },
+          CancelEditClick: (event) => {
+            PopupMessage.FeatureNotImplemented();
+          }
         }
       }
 
@@ -1271,25 +1408,67 @@ details div {
                              .replaceAll(this.#fields.School.Name, school.name),
               'text/html').body.childNodes[0];
 
-            const saveButton = editRow.querySelector(".save-school");
-            const cancelButton = editRow.querySelector(".cancel-edit-school");
-            saveButton.addEventListener("click", this.#eventHandlers.School.SaveEditClick);
-            cancelButton.addEventListener("click", this.#eventHandlers.School.CancelEditClick);
+            Elements.School.Editor.SaveButton(editRow)
+                    .addEventListener("click", this.#eventHandlers.School.SaveEditClick);
+            Elements.School.Editor.CancelButton(editRow)
+                    .addEventListener("click", this.#eventHandlers.School.CancelEditClick);
 
             return editRow;
           },
           DisplayRow: (school) => {
+            //const seniorTeams =
             const row = this.#domParser.parseFromString(
               this.#templates.School.Editor.Display
                              .replaceAll(this.#fields.School.Id, school.id)
                              .replaceAll(this.#fields.School.Name, school.name),
               'text/html').body.childNodes[0];
-            const editButton = row.querySelector(".edit-school")
-            const deleteButton = row.querySelector(".delete-school")
-            editButton.addEventListener("click", this.#eventHandlers.School.EditClick);
-            deleteButton.addEventListener("click", this.#eventHandlers.School.DeleteClick);
             
+            Elements.School.Editor.EditButton(row)
+                                  .addEventListener("click", this.#eventHandlers.School.EditClick);
+            Elements.School.Editor.DeleteButton(row)
+                                  .addEventListener("click", this.#eventHandlers.School.DeleteClick);
+            
+            Elements.School.Editor.NewSeniorTeamButton(row)
+                                  .addEventListener("click", this.#eventHandlers.Team.NewSeniorClick);
+            Elements.School.Editor.NewJuniorTeamButton(row)
+                                  .addEventListener("click", this.#eventHandlers.Team.NewJuniorClick);
+
+
             this.#enableCollapsibleEvents(row);
+
+            const seniorTeams = Data.Schools.DivsionTeams(school.id, "Senior");
+            const juniorTeams = Data.Schools.DivsionTeams(school.id, "Junior");
+
+            if(seniorTeams?.length) {
+              const seniorRows = row.querySelector(`[data-division="Senior"]`);
+              seniorTeams.forEach(team => seniorRows.appendChild(this.#createElement.Teams.DisplayRow(team)));
+            }
+
+            if(juniorTeams?.length) {
+              const juniorRows = row.querySelector(`[data-division="Junior"]`);
+              juniorTeams.forEach(team => juniorRows.appendChild(this.#createElement.Teams.DisplayRow(team)));
+            }
+
+            return row;
+          }
+        },
+        Teams: {
+          Editor: (team) => {},
+          DisplayRow: (team) => {
+            if(!team) 
+              return undefined;
+
+            const row = this.#domParser.parseFromString(
+              this.#templates.Team.Editor.Display
+                             .replaceAll(this.#fields.Team.Id, team.id)
+                             .replaceAll(this.#fields.Team.Name, team.name)
+                             .replaceAll(this.#fields.Team.Division, team.division),
+              'text/html').body.childNodes[0];
+            Elements.Team.Editor.EditButton(row)
+                    .addEventListener("click", this.#eventHandlers.Team.EditClick);
+
+            Elements.Team.Editor.DeleteButton(row)
+                    .addEventListener("click", this.#eventHandlers.Team.DeleteClick);
 
             return row;
           }
@@ -1302,7 +1481,7 @@ details div {
       }
 
       static #enableCollapsibleEvents(element) {
-        [...element.querySelectorAll(".collapsible")].forEach(c => c.addEventListener("click", this.#eventHandlers.Collapsible.Click));
+        [...element.querySelectorAll(`.${Elements.Names.Collapsible.Head}`)].forEach(c => c.addEventListener("click", this.#eventHandlers.Collapsible.Click));
       }
 
       static Schools(){
