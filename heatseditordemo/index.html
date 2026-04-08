@@ -887,10 +887,14 @@ details div {
 
       static #getAvailableId(data) {
           var id = 0;
-          var total = data?.length ?? 0;
-          while(total--) {
-            const exits = data.find(item => item.id === id);
-            if(!exits)
+          if(!data?.length)
+            return id;
+
+          var idList = data.map(item => item.id)
+                           .sort((a,b) => a - b);
+
+          while(id < idList.length) {
+            if(idList[id] !== id)
               break;
             ++id;
           }
