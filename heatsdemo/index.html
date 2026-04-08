@@ -496,8 +496,8 @@ const mapToHeatsModel = heatsJson => {
                                      return {
                                        id: h.id,
                                        division: h.division,
-                                       venue: {name: venue.name, address: venue.address, locationLink: venue.locationLink},
-                                       mc: mc.name,
+                                       venue: {name: venue?.name ?? "TBA", address: venue?.address ?? "TBA", locationLink: venue?.locationLink ?? "TBA"},
+                                       mc: mc?.name ?? "TBA",
                                        date: heatDate,
                                        teams: heatTeams
                                      };

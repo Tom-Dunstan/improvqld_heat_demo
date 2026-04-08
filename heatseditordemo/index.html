@@ -73,8 +73,16 @@ body {
 
   </style>
   <style id="table-elements-style">
-div.table-row:has(.collapsible):after {
-  content: '\002B';
+
+.editor {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+div.table-row:has(.collapsible):hover:after {
+  /* content: '\002B'; */
+  content: '\25BC';
   color: white;
   font-weight: bold;
   float: right;
@@ -82,7 +90,8 @@ div.table-row:has(.collapsible):after {
 }
 
 div.table-row:has(.collapsible):has(.active):after {
-  content: "\2212";
+  /* content: "\2212"; */
+  content: "\25B2";
 }
 
 .collapsible {
@@ -354,12 +363,6 @@ section title.level-2 {
   margin-top: 0;
 }
 
-.editor {
-  display: table;
-  width: 100%;
-  border-collapse: collapse;
-}
-
 @media screen and (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -406,6 +409,8 @@ section title.level-2 {
 
 .header-link {
   margin-left: -0.5rem;
+  min-height: 1.5rem;
+  align-content: center;
 } 
 
 .menu-link {
@@ -494,8 +499,29 @@ details div {
               <i class="fas fa-save"></i>
             </a>
           </li>
-          <li><a class="header-link" id="load-json" target="_blank">Load&nbsp;JSON<input type="file" id="json-upload" accept=".json" class="upload"></input></a></li>
-          <li><a class="header-link" id="load-csv" target="_blank">Load&nbsp;CSV<input type="file" id="csv-upload" accept=".csv" class="upload"></input></a></li>
+          <li>
+            <a class="header-link" 
+               id="load-json" 
+               title="Upload data from .json file" target="_blank">
+              <i class="fas fa-cloud-upload-alt"></i>&nbsp;JSON
+              <input type="file"
+                     id="json-upload"
+                     accept=".json"
+                     class="upload"></input>
+            </a>
+          </li>
+          <li>
+            <a class="header-link"
+               id="load-csv"
+               title="Load data from .csv file"
+               target="_blank">
+              <i class="fas fa-cloud-upload-alt"></i>&nbsp;CSV
+              <input type="file"
+                     id="csv-upload"
+                     accept=".csv"
+                     class="upload"></input>
+            </a>
+          </li>
           <li><a class="header-link" id="download" title="Download as JSON" target="_blank" onclick="onDownloadClick()"><i class="fas fa-cloud-download-alt"></i></a></li>
         </ul>
       </nav>
@@ -650,7 +676,8 @@ details div {
           SaveButton: "save-school",
           CancelButton: "cancel-edit-school",
           NewSeniorTeamButton: "new-senior-team",
-          NewJuniorTeamButton: "new-junior-team"
+          NewJuniorTeamButton: "new-junior-team",
+          NameField: "Name"
         },
         Team: {
           All: "teams",
@@ -659,7 +686,8 @@ details div {
           EditButton: "edit-team",
           DeleteButton: "delete-team",
           SaveButton: "save-team",
-          CancelButton: "cancel-edit-team"
+          CancelButton: "cancel-edit-team",
+          NameField: "Name"
         },
         Venue: {
           All: "venues",
@@ -710,6 +738,9 @@ details div {
       static Section = {
         All: document.querySelectorAll(this.Names.Section)
       }
+      static Editor = {
+        Field: (row, field) => row.querySelector(`[data-field="${field}"] input`)
+      };
       static School = {
         Count: document.getElementById(this.Names.School.Count),
         TableBody: this.#childTableBody(this.Names.School.All),
@@ -724,7 +755,8 @@ details div {
           NewSeniorTeamButton: (row) => row.querySelector(`.${this.Names.School.NewSeniorTeamButton}`),
           NewJuniorTeamButton: (row) => row.querySelector(`.${this.Names.School.NewJuniorTeamButton}`),
           Rows: () => this.School.Editor.TableBody.querySelectorAll(".table-row"),
-          ItemById: (id) => this.School.Editor.TableBody.querySelector(`[data-schoolid="${id}"]`)
+          ItemById: (id) => this.School.Editor.TableBody.querySelector(`[data-schoolid="${id}"]`),
+          NameField: (row) => this.Editor.Field(row, Elements.Names.School.NameField)
         }
       };
       static Team = {
@@ -736,6 +768,7 @@ details div {
           DeleteButton: (row) => row.querySelector(`.${this.Names.Team.DeleteButton}`),
           SaveButton: (row) => row.querySelector(`.${this.Names.Team.SaveButton}`),
           CancelButton: (row) => row.querySelector(`.${this.Names.Team.CancelButton}`),
+          NameField: (row) => this.Editor.Field(row, Elements.Names.Team.NameField),
         }
       };
       static Venue = {
@@ -860,7 +893,15 @@ details div {
                                  .sort(this.#sortBy.Name)
                                  .sort(this.#sortBy.Division)
                                  .sort(this.#sortBy.SchoolName),
-        Delete: () => {},
+        Delete: (id) => {
+          const teamIndex = this.#heats.Teams.findIndex(team => this.#findBy.Id(team, id));
+          if(teamIndex < 0)
+            return false;
+
+          this.Heats.DeleteTeamById(id);
+          this.#heats.Teams.splice(teamIndex, 1);
+          return true;
+        },
         DeleteBySchoolId: (id) => {
           if(typeof id !== "number")
             return false;
@@ -869,12 +910,7 @@ details div {
           if(!teams.length)
             return false;
 
-          teams.forEach(team => this.Heats.DeleteTeamById(team.id));
-
-          teams.map(team => this.#heats.Teams.findIndex(t => t.id === team.id))
-               .filter(index => index > -1)
-               .reverse()
-               .forEach(index => this.#heats.Teams.splice(index, 1));
+          teams.forEach(team => this.Teams.Delete(team.id));
           return true;
         }
       }
@@ -907,12 +943,10 @@ details div {
         Sorted: () => this.#heats.Heats.sort(this.#sortBy.Date),
         DeleteTeamById: (teamId) => {
           this.#heats.Heats.filter(heat => heat.teams.includes(teamId))
-                           .forEach(heat => heat.teams.map(team => 
-                                                        heat.teams.findIndex(id => id === teamId))
+                           .forEach(heat => heat.teams.map(team => heat.teams.findIndex(id => id === teamId))
                                                       .filter(index => index > -1)
-                                                      .reverse()
-                                                      .forEach(index => 
-                                                        heat.teams.splice(index, 1)));
+                                                      .sort((a, b) => b - a)
+                                                      .forEach(index => heat.teams.splice(index, 1)));
 
           return true;
         }
@@ -1314,6 +1348,19 @@ details div {
       };
 
       static #eventHandlers = {
+        Editor: {
+          Keydown: (event, escapeKeyAction, enterKeyAction) => {
+            const modifierKeyPressed = (event.ctrlKey || event.altKey || event.shiftKey || event.metaKey);
+            if(! modifierKeyPressed && escapeKeyAction && event.key === 'Escape') {
+              escapeKeyAction(event);
+              return;
+            }
+            if(! modifierKeyPressed && enterKeyAction && event.key === 'Enter') {
+              enterKeyAction(event);
+              return;
+            }
+          }
+        },
         Collapsible: {
           Click: (e) => {
             e.target.parentNode.classList.toggle("active");
@@ -1355,10 +1402,10 @@ details div {
             const schoolId = row?.dataset?.schoolid;
             const school = Data.Schools.Find(schoolId);
             PopupMessage.WarningDialog.Show(`
-            <strong>Are you sure you want to delete ${school.name}?</strong>
-            <div>All associated teams will also be deleted, and removed from heats</div>`,
-                                            () => this.#eventHandlers.School.ConfirmDelete(row, school),
-                                            this.#eventHandlers.School.CancelDelete)
+              <strong>Are you sure you want to delete ${school.name}?</strong>
+              <div>All associated teams will also be deleted, and removed from heats</div>`,
+              () => this.#eventHandlers.School.ConfirmDelete(row, school),
+              this.#eventHandlers.School.CancelDelete)
           },
           ConfirmDelete: (row, school) => {
             const schoolName = school.name;
@@ -1368,8 +1415,9 @@ details div {
             }
             if(Data.Schools.Delete(schoolId)) {
               PopupMessage.Show(`${schoolName} was deleted from Schools`);
-              Render.Teams();
-              Render.Schools();
+              this.Heats();
+              this.Teams();
+              this.Schools();
               return;
             }
             PopupMessage.ShowError(`${schoolName} could not be deleted from Schools`);
@@ -1386,7 +1434,7 @@ details div {
           SaveEditClick: (event) => {
             const row = event.target.closest(".table-row");
             const school = Data.Schools.Find(parseInt(row.dataset.schoolid));
-            const nameValue = row.querySelector('[data-field="Name"] input')?.value;
+            const nameValue = Elements.School.Editor.NameField(row)?.value;
             if(!nameValue){
               PopupMessage.ShowError("Error: Name cannot be empty");
               return;
@@ -1401,16 +1449,21 @@ details div {
 
             const dataRow = this.#createElement.School.DisplayRow(school);
             row.replaceWith(dataRow);
+            this.Schools(true);
             this.Heats();
             this.Teams();
           },
           CancelEditClick: (event) => {
             const row = event.target.closest(".table-row");
-            const school = Data.Schools.Find(parseInt(row.dataset.teamid));
+            const school = Data.Schools.Find(parseInt(row.dataset.schoolid));
             
-            const dataRow = this.#createElement.Team.DisplayRow(school);
+            const dataRow = this.#createElement.School.DisplayRow(school);
             row.replaceWith(dataRow);
-          }
+          },
+          Keydown: (event) => 
+            this.#eventHandlers.Editor.Keydown(event, 
+                                               this.#eventHandlers.School.CancelEditClick,
+                                               this.#eventHandlers.School.SaveEditClick)
         },
         Team: {
           NewSeniorClick: (event) => {
@@ -1420,8 +1473,31 @@ details div {
             PopupMessage.FeatureNotImplemented();
           },
           DeleteClick: (event) => {
-            PopupMessage.FeatureNotImplemented();
+            const row = event.target.closest(".table-row");
+            const teamId = row?.dataset?.teamid;
+            const team = Data.Teams.Find(parseInt(row.dataset.teamid));
+            PopupMessage.WarningDialog.Show(`
+              <strong>Are you sure you want to delete ${team.name}?</strong>
+              <div>The team will also be removed from heats</div>`,
+              () => this.#eventHandlers.Team.ConfirmDelete(row, team),
+              this.#eventHandlers.Team.CancelDelete)
           },
+          CancelDelete: () => {
+            PopupMessage.Show("Cancelled: Team not deleted.");
+          },
+          ConfirmDelete: ((row, team) => {
+            const teamName = team.name;
+            const teamId = team.id;
+            if(row.parentNode) {
+              row.parentNode.removeChild(row);
+            }
+            if(Data.Teams.Delete(teamId)) {
+              PopupMessage.Show(`${teamName} was deleted from Schools`);
+              this.Heats();
+              this.Teams();
+              return;
+            }
+          }),
           EditClick: (event) => {
             const row = event.target.closest(".table-row");
             const team = Data.Teams.Find(parseInt(row.dataset.teamid));
@@ -1441,6 +1517,7 @@ details div {
             const dataRow = this.#createElement.Team.DisplayRow(team);
             row.replaceWith(dataRow);
             this.Teams();
+            this.Heats();
           },
           CancelEditClick: (event) => {
             const row = event.target.closest(".table-row");
@@ -1448,7 +1525,11 @@ details div {
             
             const dataRow = this.#createElement.Team.DisplayRow(team);
             row.replaceWith(dataRow);
-          }
+          },
+          Keydown: (event) => 
+            this.#eventHandlers.Editor.Keydown(event, 
+                                               this.#eventHandlers.Team.CancelEditClick,
+                                               this.#eventHandlers.Team.SaveEditClick)
         }
       }
 
@@ -1465,6 +1546,9 @@ details div {
                     .addEventListener("click", this.#eventHandlers.School.SaveEditClick);
             Elements.School.Editor.CancelButton(editRow)
                     .addEventListener("click", this.#eventHandlers.School.CancelEditClick);
+
+            Elements.School.Editor.NameField(editRow)
+                    .addEventListener("keydown", this.#eventHandlers.School.Keydown);
 
             return editRow;
           },
@@ -1518,6 +1602,9 @@ details div {
             Elements.Team.Editor.CancelButton(row)
                     .addEventListener("click", this.#eventHandlers.Team.CancelEditClick);
 
+            Elements.Team.Editor.NameField(row)
+                    .addEventListener("keydown", this.#eventHandlers.Team.Keydown);
+
             return row;
 
           },
@@ -1551,7 +1638,7 @@ details div {
         [...element.querySelectorAll(`.${Elements.Names.Collapsible.Head}`)].forEach(c => c.addEventListener("click", this.#eventHandlers.Collapsible.Click));
       }
 
-      static Schools(){
+      static Schools(allOnly){
         if(!Data.Schools.All().length) {
           Render.#resetSection(Elements.School)
           return;
@@ -1560,6 +1647,9 @@ details div {
         const schools = Data.Schools.Sorted()
         Elements.School.Count.innerHTML = `${schools.length ?? 0}`;
         Elements.School.TableBody.innerHTML = schools.reduce(this.#render.School.All, "");
+
+        if(allOnly)
+          return;
 
         schools.forEach(school => {
           const row = this.#createElement.School.DisplayRow(school);
