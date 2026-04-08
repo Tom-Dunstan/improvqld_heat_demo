@@ -464,6 +464,11 @@ input.upload {
 }
 
   </style>
+  <style id="editor-style">
+    .tabel-cell:has(.filter-input) {
+      flex-grow: 2;
+    }
+  </style>
   <style id="menu-bar-style">
 
 details div {
@@ -543,7 +548,6 @@ details div {
             <div class="editor">
               <div class="table-header-group">
                 <div class="table-row">
-                  <div class="tabel-cell commands"></div>
                   <div class="tabel-cell commands">
                     <a id="new-school" 
                        class="command-button" 
@@ -551,7 +555,18 @@ details div {
                        <i class="fas fa-plus"></i>
                     </a>
                   </div>
-                  <div class="tabel-cell">Name</div>
+                  <div class="tabel-cell commands">
+                    <a id="school-filter"
+                       class="command-button"
+                       title="Schools' Name Filter">
+                      <i class="fas fa-search"></i>
+                    </a>
+                  </div>
+                  <div class="tabel-cell">
+                    <input id="school-name-filter" 
+                           class="filter-input"
+                           type="text" />
+                  </div>
                 </div>
               </div>
             <div class="table-row-group"></div>
@@ -667,6 +682,7 @@ details div {
         },
         Section: "section", 
         School: {
+          FilterButton: "school-filter",
           Count: "school-count",
           All: "schools",
           Editor: "schools-editor",
@@ -677,7 +693,8 @@ details div {
           CancelButton: "cancel-edit-school",
           NewSeniorTeamButton: "new-senior-team",
           NewJuniorTeamButton: "new-junior-team",
-          NameField: "Name"
+          NameField: "Name",
+          NameFilter: "school-name-filter"
         },
         Team: {
           All: "teams",
@@ -745,6 +762,8 @@ details div {
         Count: document.getElementById(this.Names.School.Count),
         TableBody: this.#childTableBody(this.Names.School.All),
         Editor: {
+          NameFilter: document.getElementById(this.Names.School.NameFilter),
+          FilterButton: document.getElementById(this.Names.School.FilterButton),
           NewButton: document.getElementById(this.Names.School.NewButton),
           Section: document.getElementById(this.Names.School.Editor),
           TableBody: this.#childEditorBody(this.Names.School.Editor),
@@ -866,10 +885,24 @@ details div {
         Date:  (a,b) => new Date(a.date) - new Date(b.date)
       }
 
+      static #getAvailableId(data) {
+          var id = 0;
+          var total = data?.length ?? 0;
+          while(total--) {
+            const exits = data.find(item => item.id === id);
+            if(!exits)
+              break;
+            ++id;
+          }
+          return id
+      }
+
       static Schools = {
         All: () => this.#heats.Schools,
         Find: (id) => this.#heats.Schools.find(school => this.#findBy.Id(school, id)),
-        Sorted: () => this.#heats.Schools.sort(this.#sortBy.Name),
+        Sorted: (filter) => this.#heats.Schools
+                                       .filter(school => !filter || school.name?.toLowerCase().includes(filter.toLowerCase()))
+                                       .sort(this.#sortBy.Name),
         Delete: (id) => {
           const schoolIndex = this.#heats.Schools.findIndex(school => this.#findBy.Id(school, id));
           if(schoolIndex < 0)
@@ -883,7 +916,25 @@ details div {
         DivsionTeams: (id, division) =>
           this.#heats.Teams.filter(team => (team.schoolId === id)
                                         && (team.division === division)),
-        NameExits: (id, name) => this.#heats.Schools.filter(school => school.id !== id && school.name.toLowerCase() === name.toLowerCase()).length > 0
+        NameExits: (id, name) => this.#heats.Schools.filter(school => school.id !== id && school.name.toLowerCase() === name.toLowerCase()).length > 0,
+        New: (name) => {
+          const exists = this.#heats.Schools.find(school => school.name.toLowerCase() === name?.toLowerCase());
+          if(exists) {
+            return {
+              error: `A school with the name "${exists.name} already exists"`}
+          };
+
+          var newSchool = {
+            id: this.#getAvailableId(this.#heats.Schools),
+            name: name
+          };
+
+          this.#heats.Schools.push(newSchool);
+
+          return {
+            success: `${newSchool.name} added`
+          };
+        }
       }
 
       static Teams = {
@@ -1132,7 +1183,7 @@ details div {
                   </a>
                 </div>
                 <div class="tabel-cell"
-                     data-field="Name"
+                     data-field="${Elements.Names.School.NameField}"
                      data-value="${Render.#fields.School.Name}">
                   <div class="${Elements.Names.Collapsible.Head}">
                     ${Render.#fields.School.Name}
@@ -1185,9 +1236,9 @@ details div {
                     <i class="fas fa-window-close"></i>
                   </a>
                 </div>
-                <div class="tabel-cell" data-field="Name"
+                <div class="tabel-cell" data-field="${Elements.Names.School.NameField}"
                      data-value="${Render.#fields.School.Name}">
-                  <input type="text" data-field="Name" value="${Render.#fields.School.Name}" />
+                  <input type="text" data-field="${Elements.Names.School.NameField}" value="${Render.#fields.School.Name}" />
                 </div>
               </div>`.trim()
           },
@@ -1212,8 +1263,8 @@ details div {
                   </a>
                 </div>
                 <div class="tabel-cell"
-                      data-field="Name"
-                      data-value="${Render.#fields.School.Name}">
+                      data-field="${Elements.Names.Team.NameField}"
+                      data-value="${Render.#fields.Team.Name}">
                   ${this.#fields.Team.Name}
                 </div>
               </div>
@@ -1236,8 +1287,8 @@ details div {
                   </a>
                 </div>
                 <div class="tabel-cell"
-                      data-field="Name"
-                      data-value="${Render.#fields.School.Name}">
+                      data-field="${Elements.Names.Team.NameField}"
+                      data-value="${Render.#fields.Team.Name}">
                   <input type="text" data-field="Name" value="${Render.#fields.Team.Name}" />
                 </div>
               </div>
@@ -1394,8 +1445,34 @@ details div {
           }
         },
         School: {
+          NameFilterKeyup: (event) => this.#renderSchoolEditor(),
+          FilterButtonClick: (event) => {
+            const filter = Elements.School.Editor.NameFilter;
+            filter.value = "";
+            this.Schools();
+            filter.focus();
+          },
           NewClick: (event) => {
-            PopupMessage.FeatureNotImplemented();
+            const newSchoolName = Elements.School.Editor.NameFilter?.value;
+            if(!newSchoolName) {
+              Elements.School.Editor.NameFilter.focus();
+              PopupMessage.ShowError("Please enter the name of the new school before clicking save");
+              Elements.School.Editor.NameFilter.focus();
+              return;
+            }
+
+            const result = Data.Schools.New(newSchoolName);
+
+            if(result.error){
+              PopupMessage.ShowError(result.error);
+              Elements.School.Editor.NameFilter.focus();
+              return;
+            }
+
+            if(result.success){
+              PopupMessage.Show(result.success);
+            }
+            this.Schools();
           },
           DeleteClick: (event) => {
             const row = event.target.closest(".table-row");
@@ -1507,7 +1584,7 @@ details div {
           SaveEditClick: (event) => {
             const row = event.target.closest(".table-row");
             const team = Data.Teams.Find(parseInt(row.dataset.teamid));
-            const nameValue = row.querySelector('[data-field="Name"] input')?.value;
+            const nameValue = Elements.Team.Editor.NameField(row)?.value;
             if(!nameValue){
               PopupMessage.ShowError("Error: Name cannot be empty");
               return;
@@ -1630,12 +1707,24 @@ details div {
       }
 
       static EnableEvents() {
+        Elements.Menu.Links.forEach(l => l.addEventListener("click", this.#eventHandlers.Menu.Click));
         Elements.School.Editor.NewButton.addEventListener("click", this.#eventHandlers.School.NewClick);
-        Elements.Menu.Links.forEach(l => l.addEventListener('click', this.#eventHandlers.Menu.Click))
+        Elements.School.Editor.FilterButton.addEventListener("click", this.#eventHandlers.School.FilterButtonClick);
+        Elements.School.Editor.NameFilter.addEventListener("keyup", this.#eventHandlers.School.NameFilterKeyup);
       }
 
       static #enableCollapsibleEvents(element) {
         [...element.querySelectorAll(`.${Elements.Names.Collapsible.Head}`)].forEach(c => c.addEventListener("click", this.#eventHandlers.Collapsible.Click));
+      }
+
+      static #renderSchoolEditor() {
+        const filter = Elements.School.Editor.NameFilter?.value;
+
+        const schools = Data.Schools.Sorted(filter);
+
+        const schoolRows = schools.map(school => this.#createElement.School.DisplayRow(school));
+
+        Elements.School.Editor.TableBody.replaceChildren(...schoolRows);
       }
 
       static Schools(allOnly){
@@ -1651,11 +1740,7 @@ details div {
         if(allOnly)
           return;
 
-        schools.forEach(school => {
-          const row = this.#createElement.School.DisplayRow(school);
-          Elements.School.Editor.TableBody.append(row);
-        });
-
+        this.#renderSchoolEditor();
       }
 
       static Teams(){
